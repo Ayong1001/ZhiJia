@@ -1,0 +1,73 @@
+{
+	"pages": [{
+			"path": "pages/home/home",
+			"style": {
+				"navigationBarTitleText": "首页"
+				// "navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/add/add",
+			"style": {
+				"navigationBarTitleText": "录入"
+			}
+		},
+		{
+			"path": "pages/service/service",
+			"style": {
+				"navigationBarTitleText": "服务"
+			}
+		},
+		{
+
+			"path": "pages/user/user",
+			"style": {
+				"navigationBarTitleText": "个人中心"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#fff",
+		"backgroundColor": "#F8F8F8",
+		"app-plus": {
+			"background": "#efeff4"
+		}
+	},
+	"tabBar": {
+		"color": "#666666",
+		"selectedColor": "#343893",
+		"borderStyle": "black",
+		"backgroundColor": "#fff",
+		"list": [{
+				"pagePath": "pages/home/home",
+				"iconPath": "static/image/tabBar/home.png",
+				"selectedIconPath": "static/image/tabBar/home-active.png",
+				"text": "首页"
+			},
+			{
+				"pagePath": "pages/add/add",
+				"iconPath": "static/image/tabBar/order.png",
+				"selectedIconPath": "static/image/tabBar/order-active.png",
+				"text": "录入"
+			},
+			{
+				"pagePath": "pages/service/service",
+				"iconPath": "static/image/tabBar/order.png",
+				"selectedIconPath": "static/image/tabBar/order-active.png",
+				"text": "服务"
+			}, {
+				"pagePath": "pages/user/user",
+				"iconPath": "static/image/tabBar/my.png",
+				"selectedIconPath": "static/image/tabBar/my-active.png",
+				"text": "个人中心"
+			}
+		]
+
+	},
+	"condition": { //模式配置，仅开发期间生效
+		"current": 0, //当前激活的模式（list 的索引项）
+		"list": []
+	}
+}
