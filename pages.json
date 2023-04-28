@@ -54,8 +54,8 @@
 			},
 			{
 				"pagePath": "pages/service/service",
-				"iconPath": "static/image/tabBar/order.png",
-				"selectedIconPath": "static/image/tabBar/order-active.png",
+				"iconPath": "static/image/tabBar/menu.png",
+				"selectedIconPath": "static/image/tabBar/menu-active.png",
 				"text": "服务"
 			}, {
 				"pagePath": "pages/user/user",
