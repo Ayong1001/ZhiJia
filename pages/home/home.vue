@@ -48,6 +48,9 @@
 
 <template>
 	<view class="container">
+		<view class="homeTop">
+			<text>智佳家装系统</text>
+		</view>
 		<uni-swiper-dot class="uni-swiper-dot-box" :dotsStyles="dotStyle" :info="info" @clickItem=clickItem
 			:current="current" mode="round" field="content">
 			<swiper class="swiper-box" autoplay=true circular=true @change="change" :current="swiperDotIndex">
@@ -63,40 +66,40 @@
 				</view>
 			</view>
 		</uni-swiper-dot>
-	</view>
-	<view class="main">
-		<view class="active">
-			<view class="activeTitle">
-				<view class="titleLeft">
-					<image src="@/static/alicon/manage.svg"></image>
-					<text>施工动态</text>
+		<view class="main">
+			<view class="active">
+				<view class="activeTitle">
+					<view class="titleLeft">
+						<image src="@/static/alicon/manage.svg"></image>
+						<text>施工动态</text>
+					</view>
+					<view class="titleRight">
+						<text>管理</text>
+						<image src="@/static/alicon/right.svg"></image>
+					</view>
 				</view>
-				<view class="titleRight">
-					<text>管理</text>
-					<image src="@/static/alicon/right.svg"></image>
+				<view class="activeContent">
+					<uni-table stripe emptyText="暂无更多数据">
+						<!-- 表头行 -->
+						<uni-tr>
+							<uni-th width="70" align="center">姓名</uni-th>
+							<uni-th width="200" align="center">施工地点</uni-th>
+							<uni-th width="70" align="center">种类</uni-th>
+							<uni-th width="60" align="center">开工日期</uni-th>
+							<uni-th width="100" align="center">预计完成日期</uni-th>
+							<uni-th width="40" align="center">进度</uni-th>
+						</uni-tr>
+						<!-- 表格数据行 -->
+						<uni-tr>
+							<uni-td align="center">给对大萨</uni-td>
+							<uni-td align="center">成都市新都区新都小区12栋1单元1201</uni-td>
+							<uni-td align="center">水木施工</uni-td>
+							<uni-td align="center">2023.3.3</uni-td>
+							<uni-td align="center">2023.4.4</uni-td>
+							<uni-td align="center">80%</uni-td>
+						</uni-tr>
+					</uni-table>
 				</view>
-			</view>
-			<view class="activeContent">
-				<uni-table stripe emptyText="暂无更多数据">
-					<!-- 表头行 -->
-					<uni-tr>
-						<uni-th width="70" align="center">姓名</uni-th>
-						<uni-th width="200" align="center">施工地点</uni-th>
-						<uni-th width="70" align="center">种类</uni-th>
-						<uni-th width="60" align="center">开工日期</uni-th>
-						<uni-th width="100" align="center">预计完成日期</uni-th>
-						<uni-th width="40" align="center">进度</uni-th>
-					</uni-tr>
-					<!-- 表格数据行 -->
-					<uni-tr>
-						<uni-td align="center">给对大萨</uni-td>
-						<uni-td align="center">成都市新都区新都小区12栋1单元1201</uni-td>
-						<uni-td align="center">水木施工</uni-td>
-						<uni-td align="center">2023.3.3</uni-td>
-						<uni-td align="center">2023.4.4</uni-td>
-						<uni-td align="center">80%</uni-td>
-					</uni-tr>
-				</uni-table>
 			</view>
 		</view>
 	</view>
@@ -111,6 +114,18 @@
 		display: flex;
 		flex-direction: column;
 		background-color: antiquewhite;
+
+		.homeTop {
+			background-color: #e8e8e8;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			height: 60px;
+
+			text {
+				font-size: 28px;
+			}
+		}
 
 		.uni-swiper-dot-box {
 			.swiper-box {

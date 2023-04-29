@@ -2,27 +2,30 @@
 	"pages": [{
 			"path": "pages/home/home",
 			"style": {
-				"navigationBarTitleText": "首页"
-				// "navigationStyle": "custom"
+				"navigationBarTitleText": "首页",
+				"navigationStyle": "custom"
 			}
 		},
 		{
 			"path": "pages/add/add",
 			"style": {
-				"navigationBarTitleText": "录入"
+				"navigationBarTitleText": "录入",
+				"navigationStyle": "custom"
 			}
 		},
 		{
 			"path": "pages/service/service",
 			"style": {
-				"navigationBarTitleText": "服务"
+				"navigationBarTitleText": "服务",
+				"navigationStyle": "custom"
 			}
 		},
 		{
 
 			"path": "pages/user/user",
 			"style": {
-				"navigationBarTitleText": "个人中心"
+				"navigationBarTitleText": "个人中心",
+				"navigationStyle": "custom"
 			}
 		}
 	],
