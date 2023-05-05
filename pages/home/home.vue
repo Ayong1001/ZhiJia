@@ -90,7 +90,7 @@
 							<uni-th width="40" align="center">进度</uni-th>
 						</uni-tr>
 						<!-- 表格数据行 -->
-						<uni-tr>
+						<uni-tr v-for="item in 5">
 							<uni-td align="center">给对大萨</uni-td>
 							<uni-td align="center">成都市新都区新都小区12栋1单元1201</uni-td>
 							<uni-td align="center">水木施工</uni-td>
