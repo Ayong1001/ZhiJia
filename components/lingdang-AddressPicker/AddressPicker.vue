@@ -1,5 +1,6 @@
 <script setup>
 	import {
+		defineProps,
 		defineEmits,
 		onMounted,
 		getCurrentInstance
@@ -14,13 +15,23 @@
 		ctx: that,
 		proxy
 	} = getCurrentInstance()
-	const emit = defineEmits(['pickerChange'])
+	const emit = defineEmits(['change'])
+	const props = defineProps({
+		baseCode: String
+	})
 	// 初始化地址选项
-	const init = () => {
+	const init = (addressCode) => {
 		array = new Array(level);
 		for (let i = 0; i < array.length; i++) {
 			if (i == 0) {
-				array[i] = AllAddress
+				if (addressCode || props.baseCode) {
+					array[i] = [].concat(AllAddress.find((e) => {
+						// return e.id === props.baseCode
+						return e.id === (addressCode? addressCode: props.baseCode)
+					}))
+				} else {
+					array[i] = AllAddress
+				}
 			} else {
 				array[i] = [];
 				if (array[i - 1][0].children != null) {
@@ -37,8 +48,8 @@
 	// 地址控件改变控件
 	const columnchange = (e) => {
 
-		let aIndex = JSON.parse(JSON.stringify(e.detail.column + 1)); //第几组
-		let j = e.detail.value; //索引值
+		let aIndex = Number(e.detail.column) + 1; //第几组
+		let j = Number(e.detail.value); //索引值
 
 		// console.log('e.detail',e.detail)
 		// console.log('选择：第'+ aIndex +'组,索引值为第' +j +'个 值为'+array[aIndex-1][j].name);
@@ -48,7 +59,7 @@
 			//2、选第二组  children 默认第三组的值为第二组的选中的children第一个值
 			array[i] = [];
 			// console.log('array[i] ', i, )
-			if (e.detail.column === 0 && i === 2) {
+			if (Number(e.detail.column) === 0 && i === 2) {
 				if (array[i - 1][0].children != null) {
 					array[i] = array[i - 1][0].children;
 				}
@@ -57,26 +68,29 @@
 					array[i] = array[i - 1][j].children;
 				}
 			}
-
 			// console.log('array[i] ',array[i] )
 		}
-
 		that.$forceUpdate()
 	}
 	//点击确定
 	const pickerChange = (e) => {
-		console.log(array);
-		var result = [];
+		let result = []
 		for (let i = 0; i < array.length; i++) {
 			result.push({
-				name: array[i][e.target.value[i]].name,
-				id: array[i][e.target.value[i]].id
+				name: array[i][e.detail.value[i]].name,
+				id: array[i][e.detail.value[i]].id
 			})
 		};
-		emit('change', {
-			data: result
-		})
+		emit('change', result)
 	}
+	//基础地址变更
+	const baseAddressChange = (addressCode) => {
+		init(addressCode)
+	}
+	
+	defineExpose({
+	  baseAddressChange
+	})
 </script>
 
 <template>

@@ -34,9 +34,13 @@
     },
     "popGesture": "close",
     "launchwebview": {
-      "render": "always",
       "id": "1",
       "kernel": "WKWebview"
+    },
+    "statusbar": {
+      "immersed": "supportedDevice",
+      "style": "dark",
+      "background": "#fff"
     },
     "usingComponents": true,
     "nvueCompiler": "uni-app",
@@ -61,8 +65,11 @@
           "<uses-permission android:name=\"android.permission.WRITE_SETTINGS\"/>"
         ]
       },
-      "apple": {},
+      "apple": {
+        "dSYMs": false
+      },
       "plugins": {
+        "ad": {},
         "audio": {
           "mp3": {
             "description": "Android平台录音支持MP3格式文件"
@@ -70,16 +77,17 @@
         }
       }
     },
-    "statusbar": {
-      "immersed": "supportedDevice",
-      "style": "dark",
-      "background": "#F8F8F8"
-    },
     "allowsInlineMediaPlayback": true,
+    "safearea": {
+      "background": "#fff",
+      "bottom": {
+        "offset": "auto"
+      }
+    },
     "uni-app": {
       "control": "uni-v3",
       "vueVersion": "3",
-      "compilerVersion": "3.7.9",
+      "compilerVersion": "3.7.11",
       "nvueCompiler": "uni-app",
       "renderer": "auto",
       "nvue": {
@@ -89,6 +97,50 @@
       "webView": {
         "minUserAgentVersion": "49.0"
       }
+    },
+    "tabBar": {
+      "position": "bottom",
+      "color": "#666666",
+      "selectedColor": "#343893",
+      "borderStyle": "rgba(0,0,0,0.4)",
+      "blurEffect": "none",
+      "fontSize": "10px",
+      "iconWidth": "24px",
+      "spacing": "3px",
+      "height": "50px",
+      "backgroundColor": "#fff",
+      "list": [
+        {
+          "pagePath": "pages/home/home",
+          "iconPath": "/static/image/tabBar/home.png",
+          "selectedIconPath": "/static/image/tabBar/home-active.png",
+          "text": "首页"
+        },
+        {
+          "pagePath": "pages/add/add",
+          "iconPath": "/static/image/tabBar/order.png",
+          "selectedIconPath": "/static/image/tabBar/order-active.png",
+          "text": "录入"
+        },
+        {
+          "pagePath": "pages/service/service",
+          "iconPath": "/static/image/tabBar/menu.png",
+          "selectedIconPath": "/static/image/tabBar/menu-active.png",
+          "text": "服务"
+        },
+        {
+          "pagePath": "pages/user/user",
+          "iconPath": "/static/image/tabBar/my.png",
+          "selectedIconPath": "/static/image/tabBar/my-active.png",
+          "text": "个人中心"
+        }
+      ],
+      "selectedIndex": 0,
+      "shown": true,
+      "child": [
+        "lauchwebview"
+      ],
+      "selected": 0
     }
   },
   "launch_path": "__uniappview.html"

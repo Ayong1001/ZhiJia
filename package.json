@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "postcss-pxtorpx-pro": "^2.0.0"
+  },
+  "dependencies": {
+    "vant": "^4.4.0"
+  }
+}

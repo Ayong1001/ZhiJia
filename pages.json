@@ -27,6 +27,12 @@
 				"navigationBarTitleText": "个人中心",
 				"navigationStyle": "custom"
 			}
+		},
+		{
+			"path": "components/private/worker/index",
+			"style": {
+				"navigationStyle": "custom"
+			}
 		}
 	],
 	"globalStyle": {
@@ -61,7 +67,8 @@
 				"selectedIconPath": "static/image/tabBar/menu-active.png",
 				"text": "服务"
 			}, {
-				"pagePath": "pages/user/user",
+				// "pagePath": "pages/user/user",
+				"pagePath": "components/private/worker/index",
 				"iconPath": "static/image/tabBar/my.png",
 				"selectedIconPath": "static/image/tabBar/my-active.png",
 				"text": "个人中心"
@@ -69,7 +76,7 @@
 		]
 
 	},
-	"condition": { //模式配置，仅开发期间生效
+	 "condition": { //模式配置，仅开发期间生效
 		"current": 0, //当前激活的模式（list 的索引项）
 		"list": []
 	}

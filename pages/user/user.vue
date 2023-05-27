@@ -7,29 +7,33 @@
 	let RealNameState = ref(false)
 	const walletUserList = reactive([{
 		num: 68.49,
-		des: '余额'
+		des: '余额',
+		badgeText: '',
 	}, {
 		num: 63.79,
-		des: '收入'
+		des: '收入',
+		badgeText: '近30天',
 	}, {
 		num: 260,
-		des: '宝币'
+		des: '宝币',
+		badgeText: '',
 	}, {
 		num: 7,
-		des: '卡券'
+		des: '卡券',
+		badgeText: '新卡券',
 	}, ])
 
 	const orderUserList = [{
-		text: '待付款',
+		text: '导出账单',
 		imgUrl: '/static/alicon/wallet.svg'
 	}, {
-		text: '已付款',
+		text: '输入邀请码',
 		imgUrl: '/static/alicon/property.svg'
 	}, {
-		text: '待处理',
+		text: '关于我们',
 		imgUrl: '/static/alicon/file-text.svg'
 	}, {
-		text: '全部订单',
+		text: '注销账号',
 		imgUrl: '/static/alicon/file.svg'
 	}]
 	const toolUserList = [{
@@ -42,12 +46,6 @@
 		text: '我的增员',
 		imgUrl: '/static/alicon/addUser.svg'
 	}, {
-		text: '待付款',
-		imgUrl: '/static/alicon/wallet.svg'
-	}, {
-		text: '已付款',
-		imgUrl: '/static/alicon/property.svg'
-	}, {
 		text: '待处理',
 		imgUrl: '/static/alicon/file-text.svg'
 	}, {
@@ -57,177 +55,122 @@
 </script>
 
 <template>
-	<view class="container">
-		<view class="userTop">
-			<view>
-				<image class="imageType1" src="@/static/alicon/eye.svg" mode=""></image>
-				<image class="imageType1" src="@/static/alicon/shop.svg" mode=""></image>
-				<image class="imageType1" src="@/static/alicon/setting.svg" mode=""></image>
+	<view class="userContainer">
+		<text class="title">我的</text>
+		<view class="top">
+			<image src="@/static/alicon/user1.svg" mode=""></image>
+			<view class="userText">
+				<text class="userDes">会员用户,到期时间2023.10.5</text>
+				<text class="userName">高**\n</text>
 			</view>
 		</view>
-		<view class="headerUser">
-			<view class="headerUserBox">
-				<image class="imageType2" src="@/static/alicon/user1.svg" mode=""></image>
-				<image v-if="!RealNameState" class="imageType3" src="@/static/alicon/RealName.svg" mode=""></image>
-				<image v-else class="imageType3" src="@/static/alicon/RealNameBinding.svg" mode=""></image>
-			</view>
-			<text class="headerUserName">高**</text>
-		</view>
-		<view class="walletUser">
-			<view class="walletUserItem" v-for="item in walletUserList">
-				<text class="walletUserItemText1">{{item.num}}</text>
-				<text class="walletUserItemText2">{{item.des}}</text>
+		<image class="vip1" src="@/static/image/user/vip1.png" mode=""></image>
+		<view class="apps">
+			<view class="appsItem" v-for="item in toolUserList" :key="item">
+				<image :src="item.imgUrl" mode=""></image>
+				<text>{{item.text}}</text>
 			</view>
 		</view>
-		<view class="orderUser">
-			<view class="orderUserBox">
-				<text class="orderUserTitle">我的订单</text>
-				<view class="orderUserItemBox">
-					<view class="orderUserItem " v-for="item in orderUserList">
-						<image :src="(item.imgUrl)" class="imageType4" mode=""></image>
-						<text class="orderUserItemText">{{item.text}}</text>
-					</view>
-				</view>
-			</view>
+		<view class="tools">
+			<uni-list class="toolsList">
+				<uni-list-item class="listItem" v-for="item in orderUserList" showArrow :title="item.text" :key="item"/>
+			</uni-list>
 		</view>
-		<view class="orderUser toolUser">
-			<view class="orderUserBox">
-				<text class="orderUserTitle">工具箱</text>
-				<view class="orderUserItemBox">
-					<view class="orderUserItem" v-for="item in toolUserList">
-						<image :src="(item.imgUrl)" class="imageType4" mode=""></image>
-						<text class="orderUserItemText">{{item.text}}</text>
-					</view>
-				</view>
-			</view>
-		</view>
+		<button class="bottomBtn" type="primary">退出登录</button>
 	</view>
 </template>
 
 <style lang="scss" scoped>
-	.container {
+	.userContainer {
 		width: 100%;
 		height: 100%;
 		display: flex;
 		flex-direction: column;
-		background-image: url('@/static/image/goods1.png');
-		background-size: cover;
-		background-repeat: no-repeat;
+		align-items: center;
+		background-color: #fff;
 
-		.userTop {
-			height: 60px;
+		.title {
+			font-size: 60rpx;
+			margin: 20rpx 0;
+		}
+
+		.top {
+			box-sizing: border-box;
+			width: 100%;
+			padding: 0 80rpx;
 			display: flex;
-			flex-direction: row-reverse;
-			align-items: center;
 
-			.imageType1 {
-				width: 35px;
-				height: 35px;
-				object-fit: cover;
-				margin-right: 15px;
+			image {
+				width: 140rpx;
+				height: 140rpx;
+			}
+
+			.userText {
+				margin-left: 40rpx;
+				display: flex;
+				flex-direction: column-reverse;
+
+				.userName {
+					font-size: 52rpx;
+				}
+
+				.userDes {
+					font-size: 28rpx;
+					color: #c7c9ce;
+				}
 			}
 		}
 
-		.headerUser {
-			display: flex;
-			padding: 10px 20px;
-
-			.headerUserBox {
-				width: 80px;
-				height: 80px;
-				position: relative;
-
-				.imageType2 {
-					width: 100%;
-					height: 100%;
-				}
-
-				.imageType3 {
-					position: absolute;
-					width: 30px;
-					height: 30px;
-					left: 50%;
-					bottom: 5px;
-					transform: translate(-50%, 0);
-				}
-			}
-
-			.headerUserName {
-				font-size: 22px;
-				margin: 10px 0 0 10px;
-			}
+		.vip1 {
+			width: 600rpx;
+			height: 160rpx;
+			margin: 40rpx 0;
 		}
 
-		.walletUser {
-			padding: 0 30px;
-			margin-bottom: 10px;
+		.apps {
+			width: 620rpx;
 			display: flex;
 			justify-content: space-between;
 
-			.walletUserItem {
+			.appsItem {
 				display: flex;
 				flex-direction: column;
 				align-items: center;
 
-				.walletUserItemText1 {
-					font-size: 24px;
-					font-weight: 600;
-					margin-bottom: 4px;
+				image {
+					width: 60rpx;
+					height: 60rpx;
+					margin-bottom: 10rpx;
 				}
 
-				.walletUserItemText2 {
-					font-size: 16px;
-					font-weight: 600;
-				}
-			}
-		}
-
-		.orderUser {
-			.orderUserBox {
-				margin: 10px auto;
-				padding: 10px 20px;
-				width: 300px;
-				height: 120px;
-				border-radius: 10px;
-				background-color: #fff;
-
-				.orderUserTitle {
-					display: inline-block;
-					font-size: 20px;
-					font-weight: bold;
-					margin-bottom: 15px;
-				}
-
-				.orderUserItemBox {
-					display: grid;
-					grid-template-areas: "a a a a";
-					justify-content: space-between;
-					grid-gap: 10px 0;
-
-					.orderUserItem {
-						display: flex;
-						flex-direction: column;
-						align-items: center;
-
-						.imageType4 {
-							width: 40px;
-							height: 40px;
-							margin-bottom: 5px;
-						}
-
-						.orderUserItemText {
-							font-size: 16px;
-							font-weight: 600;
-						}
-					}
+				text {
+					font-size: 28rpx;
 				}
 			}
 		}
 
-		.toolUser {
-			.orderUserBox {
-				height: 190px;
+		.tools {
+			width: 100%;
+			margin-top: 60rpx;
+			border-top: 20rpx #e9e9eb solid;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+
+			.toolsList {
+				width: 620rpx;
+
+				.listItem {
+					width: 100%;
+					height: 100rpx;
+				}
 			}
+		}
+		.bottomBtn{
+			width: 500rpx;
+			margin: 20rpx 0;
+			border-radius: 40rpx;
+			background-color: #2cbde1cf;
 		}
 	}
 </style>

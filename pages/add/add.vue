@@ -1,5 +1,5 @@
 <template>
-	<view class="container">
+	<view class="addContainer">
 		<view class="addIcon" @click="changeAddState" v-show="addState">
 			<image src="@/static/alicon/addUser.svg" mode=""></image>
 			<text>点击添加新工人</text>
@@ -11,56 +11,44 @@
 					<text>返回</text>
 				</view>
 				<view class="addTitleCenter">
-					<text>个人信息</text>
+					<text>工人信息</text>
 				</view>
 			</view>
 			<view class="addFormBox">
-				<uni-forms ref="form" :modelValue="formData" :rules="rules">
+				<uni-forms ref="formRef" :modelValue="formData" :rules="formRules">
 					<view class="formItem">
 						<view class="formItemTitle">
 							<image src="@/static/alicon/edit-square.svg" mode=""></image>
 							<text>用户基础信息</text>
 						</view>
-						<uni-forms-item label="姓名" name="name" required>
-							<input type="text" v-model="formData.u_name" placeholder="请输入姓名" />
+						<uni-forms-item label="姓名" name="w_name" required>
+							<input type="text" v-model="formData.w_name" placeholder="请输入姓名" />
 						</uni-forms-item>
-						<uni-forms-item label="性别" name="sex" required>
-							<radio-group class="radioStyle">
-								<label>
-									<view>
-										<radio checked value=1 />
-									</view>
-									<view>男</view>
-								</label>
-								<label>
-									<view>
-										<radio value=0 />
-									</view>
-									<view>女</view>
-								</label>
-							</radio-group>
+						<uni-forms-item label="性别" name="w_sex" required>
+							<uni-data-checkbox v-model="formData.w_sex" :localdata='sexs' />
 						</uni-forms-item>
-						<uni-forms-item label="联系电话" name="phone" required>
-							<input type="text" v-model="formData.name" placeholder="请输入联系电话" />
+						<uni-forms-item label="联系电话" name="w_phone" required>
+							<input type="text" v-model="formData.w_phone" placeholder="请输入联系电话" />
 						</uni-forms-item>
-						<uni-forms-item label="证件类型" name="paperworkType" required>
-							<uni-data-select v-model="formData.name" :localdata="range1"></uni-data-select>
+						<uni-forms-item label="证件类型" name="w_idType">
+							<uni-data-select v-model="formData.w_idType" :localdata="IdentityTypeList"></uni-data-select>
 						</uni-forms-item>
-						<uni-forms-item label="证件号码" name="paperwork" required>
-							<input type="text" v-model="formData.name" placeholder="请输入证件号码" />
+						<uni-forms-item label="证件号码" name="w_idNumber">
+							<input type="text" v-model="formData.w_idNumber" placeholder="请输入证件号码" />
 						</uni-forms-item>
-						<uni-forms-item label="工种" name="workType" required>
-							<picker class="pickerStyle" @change="workTypeChange" :value="workTypeIndex" :range="range2">
-								<view>{{range2[workTypeIndex]}}</view>
+						<uni-forms-item label="工种" name="w_typeWork" required>
+							<picker class="pickerStyle" @change="workTypeChange" :value="formData.w_typeWork" :range="workTypeList"
+								range-key='text'>
+								<view>{{workTypeList[formData.w_typeWork].text}}</view>
 							</picker>
 						</uni-forms-item>
-						<uni-forms-item label="出生日期" name="birthday" required>
-							<uni-datetime-picker type="date" v-model="birthdayDate" @change="birthdayChange" />
+						<uni-forms-item label="出生日期" name="w_birthday">
+							<uni-datetime-picker type="date" v-model="formData.w_birthday" @change="birthdayChange" />
 						</uni-forms-item>
-						<uni-forms-item label="国籍" name="nationality" required>
-							<picker class="pickerStyle" @change="countryChange" :value="countryIndex" :range="countryData"
+						<uni-forms-item label="国籍" name="w_nationality">
+							<picker class="pickerStyle" @change="countryChange" :value="formData.w_nationality" :range="countryData"
 								range-key="country_name_cn">
-								<view>{{countryData[countryIndex].country_name_cn}}</view>
+								<view>{{formData.w_nationality}}</view>
 							</picker>
 						</uni-forms-item>
 					</view>
@@ -69,11 +57,11 @@
 							<image src="@/static/alicon/edit-square.svg" mode=""></image>
 							<text>户籍所在地</text>
 						</view>
-						<uni-forms-item label="所在地区" name="nationality" required>
-							<AddressPicker @change="addressChange">{{planLocate}} </AddressPicker>
+						<uni-forms-item label="所在地区" name="w_domicileAddressCity">
+							<AddressPicker @change="permanentAddressChange">{{formData.w_domicileAddressCity || '请选择地址'}} </AddressPicker>
 						</uni-forms-item>
-						<uni-forms-item label="详细地址" name="name" required>
-							<input type="text" v-model="formData.u_name" placeholder="请输入详细地址" />
+						<uni-forms-item label="详细地址" name="w_domicileAddress">
+							<input type="text" v-model="formData.w_domicileAddress" placeholder="请输入详细地址" />
 						</uni-forms-item>
 					</view>
 					<view class="formItem">
@@ -81,11 +69,11 @@
 							<image src="@/static/alicon/edit-square.svg" mode=""></image>
 							<text>经常居住地</text>
 						</view>
-						<uni-forms-item label="所在地区" name="nationality" required>
-							<AddressPicker @change="addressChange">{{planLocate}} </AddressPicker>
+						<uni-forms-item label="所在地区" name="w_habitualResidenceCity">
+							<AddressPicker @change="addressChange">{{formData.w_habitualResidenceCity || '请选择地址'}} </AddressPicker>
 						</uni-forms-item>
-						<uni-forms-item label="详细地址" name="name" required>
-							<input type="text" v-model="formData.u_name" placeholder="请输入详细地址" />
+						<uni-forms-item label="详细地址" name="w_habitualResidence">
+							<input type="text" v-model="formData.w_habitualResidence" placeholder="请输入详细地址" />
 						</uni-forms-item>
 					</view>
 					<view class="formItem">
@@ -93,18 +81,23 @@
 							<image src="@/static/alicon/edit-square.svg" mode=""></image>
 							<text>其它</text>
 						</view>
-						<uni-forms-item label="微信号" name="name">
-							<input type="text" v-model="formData.u_name" placeholder="请输入详细地址" />
+						<uni-forms-item label="微信号" name="w_wechatNumber">
+							<input type="text" v-model="formData.w_wechatNumber" placeholder="请输入微信号" />
 						</uni-forms-item>
 						<uni-forms-item label="邮箱" name="name">
-							<input type="text" v-model="formData.u_name" placeholder="请输入详细地址" />
+							<input type="text" v-model="formData.w_email" placeholder="请输入邮箱" />
 						</uni-forms-item>
 						<uni-forms-item label="紧急联系电话" name="name">
-							<input type="text" v-model="formData.u_name" placeholder="请输入详细地址" />
+							<input type="text" v-model="formData.w_emergencyPhone" placeholder="请输入紧急联系电话" />
 						</uni-forms-item>
 					</view>
 				</uni-forms>
 				<button @click="formSubmit">提交</button>
+				<!-- 提示信息弹窗 -->
+				<uni-popup ref="popupRef" type="message">
+					<uni-popup-message :type="popupList.msgType" :message="popupList.messageText"
+						:duration="2000"></uni-popup-message>
+				</uni-popup>
 			</view>
 		</view>
 	</view>
@@ -113,26 +106,59 @@
 <script setup>
 	import {
 		computed,
+		onMounted,
 		reactive,
-		ref
+		ref,
 	} from "vue";
+	import request from '@/utils/requset.js'
 	import countryData from '@/utils/country.js'
+	import workTypeList from '@/utils/workTypeList.js'
 	import AddressPicker from "@/components/lingdang-AddressPicker/AddressPicker.vue"
 
 	let addState = ref(false)
 	const changeAddState = () => {
 		addState.value = !addState.value
 	}
-	const formSubmit = () => {
-		console.log(123)
-	}
+	const formRef = ref(null)
+	const popupRef = ref(null)
+
 	//form表单数据
-	const formData = {
-		name: '',
-		email: ''
+	const formData = ref({
+		w_name: '', //姓名
+		w_domicileAddress: '', //户籍详细地址
+		w_phone: '', //联系电话
+		w_idType: '', //证件类型
+		w_idNumber: '', // 证件号码
+		w_typeWork: 0, //工种
+		w_birthday: '', //生日
+		w_sex: null, // 性别
+		w_nationality: '中国', //国籍
+		w_domicileAddressCity: '', //户籍所在地
+		w_habitualResidenceCity: '', //经常居住地
+		w_habitualResidence: '', //经常详细地址
+		w_emergencyContact: '', //紧急联系人
+		w_addressCity: '', //现在所在地
+		w_address: '', //现在详细地址
+		w_nation: '', //民族
+		w_wechatNumber: '', //微信号
+		w_email: '', //邮箱
+		w_emergencyPhone: '', //紧急联系电话
+	})
+
+	const popupList = {
+		msgType: '',
+		messageText: '',
 	}
+	//性别选择
+	const sexs = [{
+		text: '男',
+		value: 1
+	}, {
+		text: '女',
+		value: 0
+	}]
 	//身份类型选择
-	const range1 = [{
+	const IdentityTypeList = [{
 			value: 0,
 			text: "居民身份证"
 		},
@@ -154,80 +180,113 @@
 		},
 	]
 	//工种选择
-	let workType = '小工'
-	let workTypeIndex = 0
-	const range2 = ['小工', '水工', '电工', '木工', '泥工', '瓦工', '焊工', '水暖工', '防水工', '油漆工', '涂料工', '厨房工', '装饰工', '保洁工', '维修工',
-		'设计师', '杂工'
-	]
+	let workNmae = '小工'
 	const workTypeChange = (e) => {
-		workTypeIndex = e.detail.value
-		workType = range2[e.detail.value]
+		formData.value.w_typeWork = e.detail.value
+		workNmae = workTypeList[e.detail.value].text
 	}
 	//出生日期选择
-	let birthdayDate = ''
 	const birthdayChange = function(e) {
-		birthdayDate = e
+		formData.value.w_birthday = e
 	}
 	//国籍选择
-	let country = '中国'
-	let countryIndex = 36
 	const countryChange = (e) => {
-		countryIndex = e.detail.value
-		country = countryData[e.detail.value].country_name_cn
+		formData.value.w_nationality = countryData[e.detail.value].country_name_cn
 	}
 	//户籍所在地
-	let planLocate = '请选择地址'
+	const permanentAddressChange = (result) => {
+		formData.value.w_domicileAddressCity = '';
+		result.forEach((item, index) => {
+			if (index === 0) {
+				formData.value.w_domicileAddressCity += item.name
+			} else {
+				formData.value.w_domicileAddressCity += '-' + item.name
+			}
+		});
+	}
+	//常住地址
 	const addressChange = (result) => {
-		console.log(result)
-		console.log(JSON.stringify(result.data));
-		// planLocate = '';
-		// result.data.forEach((item, index) => {
-		// 	if (index === 0) {
-		// 		planLocate += item.name
-		// 	} else {
-		// 		planLocate += '-' + item.name
-		// 	}
-		// });
-		// let arr = planLocate.split('-');
+		formData.value.w_habitualResidenceCity = '';
+		result.forEach((item, index) => {
+			if (index === 0) {
+				formData.value.w_habitualResidenceCity += item.name
+			} else {
+				formData.value.w_habitualResidenceCity += '-' + item.name
+			}
+		});
 	}
 	//
-	const rules = {
+	const formRules = {
 		// 对name字段进行必填验证
-		name: {
+		w_name: {
 			rules: [{
 					required: true,
 					errorMessage: '请输入姓名',
 				},
 				{
-					minLength: 3,
-					maxLength: 5,
+					minLength: 2,
+					maxLength: 8,
 					errorMessage: '姓名长度在 {minLength} 到 {maxLength} 个字符',
 				}
 			]
 		},
-		// 对email字段进行必填验证
-		email: {
+		// 对性别进行验证
+		w_sex: {
 			rules: [{
-				format: 'email',
-				errorMessage: '请输入正确的邮箱地址',
+				required: true,
+				errorMessage: '请选择性别',
 			}]
+		},
+		// 对手机号码进行验证
+		w_phone: {
+			rules: [{
+				required: true,
+				errorMessage: '请输入手机号码',
+			},
+				{
+					pattern: '^1[3-9]\\d{9}$',
+					errorMessage: '请输入正确的手机号码',
+				}]
 		}
 	}
+	//消息提示
+	const messageToggle = (type, text) => {
+		popupList.msgType = type
+		popupList.messageText = text
+		popupRef.value.open()
+	}
+	// 表单提交/校验
+	const formSubmit = () => {
+		console.log('formRef.value',formRef.value)
+		formRef.value.validate().then(res => {
+			console.log('表单数据信息：', res);
+		}).catch(err => {
+			console.log('表单错误信息：', err);
+			messageToggle('error', err[0].errorMessage)
+		})
+		// request({
+		// 	url: '/worker/add',
+		// 	method: "POST",
+		// 	data: JSON.stringify(formData)
+		// }).then(res => console.log('res', res))
+		
+	}
+	onMounted(() => {})
 </script>
 
-<style lang="scss">
-	.container {
+<style lang="scss" scoped>
+	.addContainer {
 		min-height: 100%;
 		position: relative;
 
 		.addBox {
 			.addTitle {
-				height: 60px;
-				padding: 0 10px;
+				height: 120rpx;
+				padding: 0 20rpx;
 				position: relative;
-				font-size: 18px;
+				font-size: 36rpx;
 				background-color: #fff;
-				border-bottom: 1px #dadada solid;
+				border-bottom: 2rpx #dadada solid;
 				display: flex;
 				align-items: center;
 
@@ -236,8 +295,8 @@
 					align-items: center;
 
 					image {
-						width: 30px;
-						height: 30px;
+						width: 60rpx;
+						height: 60rpx;
 						object-fit: cover;
 						transform: rotate(180deg);
 					}
@@ -255,23 +314,23 @@
 			.addFormBox {
 
 				.formItem {
-					padding: 0 20px;
-					margin: 15px 0;
+					padding: 0 40rpx;
+					margin: 30rpx 0;
 					background-color: #fff;
 
 					.formItemTitle {
-						height: 40px;
-						margin-bottom: 10px;
-						border-bottom: 1px #dadada solid;
+						height: 80rpx;
+						margin-bottom: 20rpx;
+						border-bottom: 2rpx #dadada solid;
 						display: flex;
 						align-items: center;
-						font-size: 18px;
+						font-size: 36rpx;
 						font-weight: 600;
 
 						image {
-							width: 30px;
-							height: 30px;
-							margin-right: 10px;
+							width: 60rpx;
+							height: 60rpx;
+							margin-right: 20rpx;
 							object-fit: cover;
 						}
 					}
@@ -283,7 +342,7 @@
 					::v-deep .uni-label-pointer {
 						display: flex;
 						align-items: center;
-						margin-right: 20px;
+						margin-right: 40rpx;
 					}
 				}
 
@@ -291,7 +350,7 @@
 					border: 0;
 
 					.uni-select__input-text {
-						font-size: 16px;
+						font-size: 32rpx;
 						color: rgb(0 0 0 / 54%);
 					}
 				}
@@ -305,7 +364,7 @@
 
 					.uni-date__x-input {
 						padding: 0;
-						font-size: 16px;
+						font-size: 32rpx;
 					}
 
 					.uniui-calendar::before {
@@ -314,9 +373,9 @@
 				}
 
 				::v-deep .uni-forms-item {
-					padding-bottom: 5px;
-					margin-bottom: 5px;
-					border-bottom: 1px #dadada solid;
+					padding-bottom: 10rpx;
+					margin-bottom: 10rpx;
+					border-bottom: 2rpx #dadada solid;
 
 					.uni-forms-item__content {
 						display: flex;
@@ -324,7 +383,7 @@
 					}
 
 					.uni-forms-item__label {
-						width: 110px !important;
+						width: 220rpx !important;
 					}
 				}
 			}
@@ -341,19 +400,19 @@
 			align-items: center;
 
 			image {
-				width: 80px;
-				height: 80px;
+				width: 160rpx;
+				height: 160rpx;
 				object-fit: cover;
 			}
 
 			text {
-				font-size: 16px;
+				font-size: 32rpx;
 			}
 		}
 
 		.pickerStyle {
 			width: 100%;
-			font-size: 16px;
+			font-size: 32rpx;
 		}
 	}
 </style>
