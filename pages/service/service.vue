@@ -1,322 +1,372 @@
-<template>
-	<view class="serviceContainer">
-		<view class="serviceHeader">
-			<view class="row">
-				<view class="rowText1Box">
-					<text :class="['rowText1', provinceIndex == index? `rowText1Active` : '']"
-						v-for="(item,index) in defaultAddress.slice(0,4)" @click="addressSelect(item,index)">{{item.name}}</text>
-					<text :class="['rowText1', colorState? `rowText1Active` : '']">{{defaultAddress.at(-1).name}}</text>
-				</view>
-				<view class="moreBox">
-					<picker @change="provinceArrChange" :range="provinceArr" range-key="name">
-						<!-- <view class="uni-input">{{array[index]}}</view> -->
-						<image class="ListIcon" src="@/static/alicon/list.svg" mode=""></image>
-					</picker>
-				</view>
-			</view>
-			<view class="row">
-				<view class="addressText">
-					<view class="addressPicker">
-						<AddressPicker ref="AddressPickerRef" :baseCode="defaultAddress[0].id" @change="permanentAddressChange">
-							{{addressText || '请选择地址'}}
-						</AddressPicker>
-					</view>
-					<uni-icons class="addressPickerIcon" type="bottom" size="10"></uni-icons>
-				</view>
-				<uni-data-checkbox class="workTypeCheckbox" v-model="defWorkTypeIndex" mode="tag" :localdata="workTypeList"
-					@change="workTypeChange" selectedColor="#2979ff"></uni-data-checkbox>
-			</view>
-		</view>
-		<view class="engineerTable">
-			<uni-table stripe emptyText="暂无更多数据">
-				<!-- 表头行 -->
-				<uni-tr class="trStyle" height="60">
-					<uni-th width="30" align="center">排名</uni-th>
-					<uni-th width="40" align="center">等级</uni-th>
-					<uni-th width="50" align="center">姓名</uni-th>
-					<uni-th width="30" align="center">年龄</uni-th>
-					<uni-th width="50" align="center">完工件数</uni-th>
-					<uni-th width="50" align="center">目前状态</uni-th>
-				</uni-tr>
-				<!-- 表格数据行 -->
-				<uni-tr :style="{backgroundColor:`${trBGColor(item)}`}" v-for="(item,index) in engineerList">
-					<uni-td align="center">{{index + 1}}</uni-td>
-					<uni-td class="imgTd" align="center">
-						<image v-if="item.grade === 1" src="@/static/alicon/gold.svg" mode=""></image>
-						<image v-else-if="item.grade === 2" src="@/static/alicon/silver.svg" mode=""></image>
-						<image v-else src="@/static/alicon/bronze.svg" mode=""></image>
-					</uni-td>
-					<uni-td align="center">{{item.name}}</uni-td>
-					<uni-td align="center">{{item.age}}</uni-td>
-					<uni-td align="center">{{item.num}}</uni-td>
-					<uni-td align="center">
-						<text v-if="item.state === 1">正在施工</text>
-						<text v-else-if="item.state === 2">已完工</text>
-						<text v-else>空闲</text>
-					</uni-td>
-				</uni-tr>
-			</uni-table>
-		</view>
-	</view>
-</template>
-
 <script setup>
-	import {
-		reactive,
-		ref
-	} from "vue";
-	import workTypeList from '@/utils/workTypeList.js'
-	import AllAddress from '@/utils/AddressData.js'
-	import AddressPicker from "@/components/lingdang-AddressPicker/AddressPicker.vue"
+import { onMounted, reactive, ref } from 'vue'
+import { List } from 'vant'
+import 'vant/lib/index.css'
+import { workers } from '@/api/baseRequest'
+import baseWorkTypeList from '@/utils/workTypeList.js'
+import AllAddress from '@/utils/AddressData.js'
+import AddressPicker from '@/components/lingdang-AddressPicker/AddressPicker.vue'
 
-	const provinceIndex = ref(0) //省份下标
-	// 查询表单
-	const form = reactive({
-		address:'四川省',
-		workType:''
-	})
-	const engineerList = [{
-			rank: 1,
-			grade: 1,
-			name: '张师傅大',
-			age: 30,
-			num: 30,
-			state: 1,
-		},
-		{
-			rank: 2,
-			grade: 1,
-			name: '李四',
-			age: 28,
-			num: 19,
-			state: 2,
-		},
-		{
-			rank: 3,
-			grade: 2,
-			name: '陈沙发',
-			age: 32,
-			num: 35,
-			state: 1,
-		},
-		{
-			rank: 3,
-			grade: 2,
-			name: '空间代理费',
-			age: 31,
-			num: 28,
-			state: 2,
-		},
-		{
-			rank: 4,
-			grade: 3,
-			name: '科技否定',
-			age: 29,
-			num: 21,
-			state: 2,
-		},
-		{
-			rank: 4,
-			grade: 3,
-			name: '科技否定',
-			age: 26,
-			num: 23,
-			state: 3,
-		},
-		{
-			rank: 4,
-			grade: 3,
-			name: '科技否定',
-			age: 25,
-			num: 27,
-			state: 3,
-		},
-	]
-	// 工种选择
-	let defWorkTypeIndex = 0
-	const workTypeChange = (e) => {
-		form.workType = workTypeList[e.detail.value].text
-		console.log('form',form)
-	}
-	//默认地址数组
-	const defaultAddress = reactive([{
-		"id": "510000",
-		"name": "四川省"
-	}, {
-		"id": "500000",
-		"name": "重庆市"
-	}, {
-		"id": "110000",
-		"name": "北京市"
-	}, {
-		"id": "310000",
-		"name": "上海市"
-	}, {
-		"id": "",
-		"name": "更多..."
-	}])
-	const colorState = ref(false)
-	const AddressPickerRef = ref(null)
-	const	addressText = ref('')
-	
-	// 省份选择
-	const provinceArr = AllAddress.map(item=>{
-		return {id:item.id,name:item.name}
-	})
-	const addressSelect = (item, index) => {
-		addressText.value = ''
-		defaultAddress.at(-1).name = '更多...'
-		AddressPickerRef.value.baseAddressChange(item.id)
-		colorState.value = false
-		provinceIndex.value = index
-		form.address = item.name
-	}
-	const provinceArrChange = e =>{
-		addressText.value = ''
-		defaultAddress.at(-1).name = provinceArr[e.detail.value].name
-		AddressPickerRef.value.baseAddressChange(provinceArr[e.detail.value].id)
-		form.address = provinceArr[e.detail.value].name
-		provinceIndex.value = null
-		colorState.value = true
-	}
-	
-	// 颜色控制
-	const trBGColor = (item) => {
-		if (item.state == 1) return '#fad8d6'
-		else if (item.state == 2) return '#fdedd9'
-		else return '#d1f2d7'
-	}
-	// 详细地址选择器
-	const permanentAddressChange = (result) => {
-		addressText.value = ''
-		result.splice(0, 1)
-		result.forEach((item, index) => {
-			if (index === 0) {
-				addressText.value += item.name
-				form.address += ('-' + item.name)
-			} else {
-				form.address += ('-' + item.name)
-				addressText.value += item.name
-			}
-		})
-	}
+// 初始化工种列表
+baseWorkTypeList.unshift({
+  value: 0,
+  text: '不限'
+})
+const workTypeList = baseWorkTypeList
+const provinceIndex = ref(0) //省份下标
+let page = 1 // 初始查询页grade
+const loading = ref(false)
+const finished = ref(false)
+// 查询表单
+const form = reactive({
+  address: '四川省',
+  workType: ''
+})
+const engineerList = ref([])
+const engineerClick = item => {
+  uni.navigateTo({
+    url: `/components/private/worker/index?serviceData=${JSON.stringify(item)}`
+  })
+}
+// 工种选择
+let defWorkTypeIndex = 0
+const workTypeChange = e => {
+  if (workTypeList[e.detail.value].text === '不限') {
+    form.workType = ''
+  } else {
+    form.workType = workTypeList[e.detail.value].text
+  }
+  console.log('form', form)
+  page = 1
+  engineerList.value = []
+  clickLoadMore()
+}
+//默认地址数组
+const defaultAddress = reactive([
+  {
+    id: '510000',
+    name: '四川省'
+  },
+  {
+    id: '500000',
+    name: '重庆市'
+  },
+  {
+    id: '110000',
+    name: '北京市'
+  },
+  {
+    id: '310000',
+    name: '上海市'
+  },
+  {
+    id: '',
+    name: '更多...'
+  }
+])
+const colorState = ref(false)
+const AddressPickerRef = ref(null)
+const addressText = ref('')
+
+// 省份选择
+const provinceArr = AllAddress.map(item => {
+  return {
+    id: item.id,
+    name: item.name
+  }
+})
+const addressSelect = (item, index) => {
+  addressText.value = ''
+  defaultAddress[defaultAddress.length - 1].name = '更多...'
+  AddressPickerRef.value.baseAddressChange(item.id)
+  colorState.value = false
+  provinceIndex.value = index
+  form.address = item.name
+  page = 1
+  engineerList.value = []
+  clickLoadMore()
+}
+const provinceArrChange = e => {
+  addressText.value = ''
+  defaultAddress[defaultAddress.length - 1].name = provinceArr[e.detail.value].name
+  AddressPickerRef.value.baseAddressChange(provinceArr[e.detail.value].id)
+  form.address = provinceArr[e.detail.value].name
+  provinceIndex.value = null
+  colorState.value = true
+  page = 1
+  engineerList.value = []
+  clickLoadMore()
+}
+
+// 颜色控制
+const trBGColor = item => {
+  if (item.state == 1) return '#fad8d6'
+  else if (item.state == 2) return '#fdedd9'
+  else return '#d1f2d7'
+}
+// 详细地址选择器
+const permanentAddressChange = result => {
+  addressText.value = ''
+  result.splice(0, 1)
+  result.forEach((item, index) => {
+    if (index === 0) {
+      addressText.value += item.name
+      form.address += '-' + item.name
+    } else {
+      form.address += '-' + item.name
+      addressText.value += item.name
+    }
+  })
+  page = 1
+  engineerList.value = []
+  clickLoadMore()
+}
+// 列表数据请求
+const clickLoadMore = () => {
+  workers({
+    data: {
+      page,
+      pageSize: 10,
+      w_typeWork: form.workType,
+      w_addressCity: form.address.split('-')[0],
+      w_address: form.address.split('-')[1]
+    }
+  }).then(res => {
+    console.log('res', res.data.data)
+    if (res.statusCode != 200 || res.data.data.length === 0) {
+      console.log('finished!!!')
+      loading.value = false
+      finished.value = true
+    } else {
+      res.data.data.forEach(item => {
+        engineerList.value.push(item)
+      })
+      page += 1
+      loading.value = false
+    }
+  })
+}
+
+onMounted(() => {})
 </script>
 
+<template>
+  <view class="serviceContainer">
+    <view class="serviceHeader">
+      <view class="row">
+        <view class="rowText1Box">
+          <text
+            :class="['rowText1', provinceIndex == index ? `rowText1Active` : '']"
+            v-for="(item, index) in defaultAddress.slice(0, 4)"
+            @click="addressSelect(item, index)"
+            >{{ item.name }}</text
+          >
+          <text :class="['rowText1', colorState ? `rowText1Active` : '']">{{
+            defaultAddress.slice(-1)[0].name
+          }}</text>
+        </view>
+        <view class="moreBox">
+          <picker @change="provinceArrChange" :range="provinceArr" range-key="name">
+            <!-- <view class="uni-input">{{array[index]}}</view> -->
+            <image class="ListIcon" src="@/static/alicon/list.svg" mode=""></image>
+          </picker>
+        </view>
+      </view>
+      <view class="row">
+        <view class="addressText">
+          <view class="addressPicker">
+            <AddressPicker
+              ref="AddressPickerRef"
+              :baseCode="defaultAddress[0].id"
+              @change="permanentAddressChange"
+            >
+              {{ addressText || '请选择地址' }}
+            </AddressPicker>
+          </view>
+          <uni-icons class="addressPickerIcon" type="bottom" size="10"></uni-icons>
+        </view>
+        <uni-data-checkbox
+          class="workTypeCheckbox"
+          v-model="defWorkTypeIndex"
+          mode="tag"
+          :localdata="workTypeList"
+          @change="workTypeChange"
+          selectedColor="#2979ff"
+        ></uni-data-checkbox>
+      </view>
+    </view>
+    <view class="engineerTable">
+      <list
+        v-model:loading="loading"
+        :finished="finished"
+        finished-text="没有更多了"
+        @load="clickLoadMore"
+      >
+        <uni-table stripe emptyText="" style="height: 100%">
+          <!-- 表头行 -->
+          <uni-tr class="trStyle" height="60">
+            <uni-th width="30" align="center">排名</uni-th>
+            <uni-th width="40" align="center">等级</uni-th>
+            <uni-th width="50" align="center">姓名</uni-th>
+            <uni-th width="30" align="center">年龄</uni-th>
+            <uni-th width="50" align="center">完工件数</uni-th>
+            <uni-th width="50" align="center">目前状态</uni-th>
+          </uni-tr>
+          <!-- 表格数据行 -->
+          <uni-tr
+            :style="{ backgroundColor: `${trBGColor(item)}` }"
+            v-for="(item, index) in engineerList"
+            @click="engineerClick(item)"
+          >
+            <uni-td align="center">{{ index + 1 }}</uni-td>
+            <uni-td class="imgTd" align="center">
+              <image v-if="item.w_grade === 1" src="@/static/alicon/gold.svg" mode=""></image>
+              <image
+                v-else-if="item.w_grade === 2"
+                src="@/static/alicon/silver.svg"
+                mode=""
+              ></image>
+              <image v-else src="@/static/alicon/bronze.svg" mode=""></image>
+            </uni-td>
+            <uni-td align="center">{{ item.w_name }}</uni-td>
+            <uni-td align="center">{{ item.w_age }}</uni-td>
+            <uni-td align="center">{{ item.w_completedQuantity }}</uni-td>
+            <uni-td align="center">
+              <text v-if="item.state === 1">正在施工</text>
+              <text v-else-if="item.state === 0">已完工</text>
+              <text v-else>空闲</text>
+            </uni-td>
+          </uni-tr>
+        </uni-table>
+      </list>
+    </view>
+  </view>
+</template>
 <style lang="scss" scoped>
-	.serviceContainer {
-		.rowText1Active {
-			color: #2979ff;
-		}
-		.serviceHeader {
-			.row {
-				padding: 0 20rpx;
-				height: 100rpx;
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
-				border-bottom: 2rpx #e9e9eb solid;
+.serviceContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  .rowText1Active {
+    color: #2979ff;
+  }
 
-				.rowText1Box {
-					flex: 1;
-					display: flex;
-					margin-right: 20rpx;
-					align-items: center;
-					justify-content: space-between;
+  .serviceHeader {
+    .row {
+      padding: 0 20rpx;
+      height: 100rpx;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2rpx #e9e9eb solid;
 
-					.rowText1 {
-						max-width: 120rpx;
-						text-align: center;
-						font-weight: bold;
-					}
-					
-				}
+      .rowText1Box {
+        flex: 1;
+        display: flex;
+        margin-right: 20rpx;
+        align-items: center;
+        justify-content: space-between;
 
-				.moreBox {
-					image {
-						width: 50rpx;
-						height: 50rpx;
-						object-fit: cover;
-					}
-				}
+        .rowText1 {
+          max-width: 120rpx;
+          text-align: center;
+          font-weight: bold;
+        }
+      }
 
-				.addressText {
-					display: flex;
-					align-items: center;
-					justify-content: space-between;
+      .moreBox {
+        image {
+          width: 50rpx;
+          height: 50rpx;
+          object-fit: cover;
+        }
+      }
 
-					.addressPicker {
-						max-width: 200rpx;
-						overflow: hidden;
-						font-size: 28rpx;
-						white-space: nowrap;
-						font-weight: bold;
-					}
-					.addressPickerIcon{
-						margin-left: 20rpx;
-					}
-				}
+      .addressText {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
 
-				.ListIcon {
-					width: 60rpx;
-					height: 60rpx;
-					object-fit: cover;
-				}
+        .addressPicker {
+          max-width: 200rpx;
+          overflow: hidden;
+          font-size: 28rpx;
+          white-space: nowrap;
+          font-weight: bold;
+        }
 
-				.workTypeCheckbox {
-					flex: 1;
-					margin-left: 20rpx;
+        .addressPickerIcon {
+          margin-left: 20rpx;
+        }
+      }
 
-					::v-deep .checklist-group {
-						width: 520rpx;
-						flex-wrap: nowrap;
-						align-items: center;
-						overflow: scroll;
+      .ListIcon {
+        width: 60rpx;
+        height: 60rpx;
+        object-fit: cover;
+      }
 
-						.checklist-box {
-							display: inline-table;
-							min-width: 60rpx;
-						}
-						.checklist-text{
-							white-space: nowrap;
-						}
-					}
-				}
+      .workTypeCheckbox {
+        flex: 1;
+        margin-left: 20rpx;
 
-				::v-deep .uni-mt-10 {
-					width: 400rpx;
-					margin-top: 0;
-					align-items: center;
-				}
-			}
-		}
+        ::v-deep .checklist-group {
+          width: 520rpx;
+          flex-wrap: nowrap;
+          align-items: center;
+          overflow: scroll;
 
-		.engineerTable {
-			overflow: auto;
-			border-radius: 10rpx;
+          .checklist-box {
+            display: inline-table;
+            min-width: 60rpx;
+          }
 
-			.trStyle {
-				background-color: #00000012;
-			}
+          .checklist-text {
+            white-space: nowrap;
+          }
+        }
+      }
 
-			.imgTd {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				// border-bottom: 0;
+      ::v-deep .uni-mt-10 {
+        width: 400rpx;
+        margin-top: 0;
+        align-items: center;
+      }
+    }
+  }
 
-				image {
-					width: 80rpx;
-					height: 80rpx;
-				}
-			}
+  .engineerTable {
+    flex: 1;
+    overflow: auto;
+    border-radius: 10rpx;
+    // ::v-deep .uni-table {
+    //   height: 100%;
+    // }
 
-			::v-deep .uni-table-th {
-				padding: 24rpx 12rpx;
-			}
+    .trStyle {
+      background-color: #00000012;
+    }
 
-			::v-deep .uni-table-td {
-				padding: 8rpx 0;
-			}
-		}
-	}
+    .imgTd {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      // border-bottom: 0;
+
+      image {
+        width: 80rpx;
+        height: 80rpx;
+      }
+    }
+
+    ::v-deep .uni-table-th {
+      padding: 24rpx 12rpx;
+    }
+
+    ::v-deep .uni-table-td {
+      padding: 8rpx 0;
+    }
+  }
+}
 </style>

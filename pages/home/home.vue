@@ -1,5 +1,4 @@
 <script setup>
-import requset from '@/utils/requset.js'
 import { ref, onMounted } from 'vue'
 
 let current = ref(0)
@@ -7,23 +6,9 @@ let swiperDotIndex = ref(0)
 
 //请求数据
 const dataList = ref([])
-
-const getList = () => {
-  requset({
-    url: '/worker',
-    method: 'GET',
-    data: JSON.stringify({
-      pageNum: 0,
-      pageSize: 10
-    })
-  }).then((res) => {
-    if (!res.data) return
-    dataList.value = res.data
-    console.log('res', res)
-  })
-}
+const getList = () => {}
 onMounted(() => {
-  getList()
+  // getList()
 })
 
 const info = [
@@ -65,9 +50,9 @@ const otherBoxList = [
     imgUrl: '/static/image/home/location-fill.png'
   }
 ]
-const clickItem = (e) => {}
+const clickItem = e => {}
 //跳转页面
-const BoxItemBtn = (item) => {
+const BoxItemBtn = item => {
   console.log(item.route)
   uni.switchTab({
     url: item.route

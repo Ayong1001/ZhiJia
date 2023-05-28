@@ -3,6 +3,8 @@
     "postcss-pxtorpx-pro": "^2.0.0"
   },
   "dependencies": {
+    "@vant/area-data": "^1.4.1",
+    "lodash": "^4.17.21",
     "vant": "^4.4.0"
   }
 }

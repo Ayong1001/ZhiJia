@@ -67,8 +67,8 @@
 				"selectedIconPath": "static/image/tabBar/menu-active.png",
 				"text": "服务"
 			}, {
-				// "pagePath": "pages/user/user",
-				"pagePath": "components/private/worker/index",
+				"pagePath": "pages/user/user",
+				// "pagePath": "components/private/worker/index",
 				"iconPath": "static/image/tabBar/my.png",
 				"selectedIconPath": "static/image/tabBar/my-active.png",
 				"text": "个人中心"
