@@ -1,25 +1,21 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { add } from '@/api/baseRequest'
 import countryData from '@/utils/country.js'
 import workTypeList from '@/utils/workTypeList.js'
 import AddressPicker from '@/components/lingdang-AddressPicker/AddressPicker.vue'
 
 let addState = ref(true)
-const changeAddState = () => {
-  addState.value = !addState.value
-}
 const formRef = ref(null)
 const popupRef = ref(null)
 let baseAddressCode = ''
-//form表单数据
-const formData = ref({
+const baseFormData = {
   w_name: '', //姓名
   w_domicileAddress: '', //户籍详细地址
   w_phone: '', //联系电话
   w_idType: '', //证件类型
   w_idNumber: '', // 证件号码
-  w_typeWork: 0, //工种
+  w_typeWork: workTypeList[0].text, //工种
   w_birthday: '', //生日
   w_sex: null, // 性别
   w_nationality: '中国', //国籍
@@ -33,7 +29,9 @@ const formData = ref({
   w_wechatNumber: '', //微信号
   w_email: '', //邮箱
   w_emergencyPhone: '' //紧急联系电话
-})
+}
+//form表单数据
+const formData = ref(JSON.parse(JSON.stringify(baseFormData)))
 
 const popupList = {
   msgType: '',
@@ -74,10 +72,10 @@ const IdentityTypeList = [
   }
 ]
 //工种选择
-let workNmae = '小工'
+const workTypeIndex = ref(0)
 const workTypeChange = e => {
-  formData.value.w_typeWork = e.detail.value
-  workNmae = workTypeList[e.detail.value].text
+  workTypeIndex.value = e.detail.value
+  formData.value.w_typeWork = workTypeList[e.detail.value].text
 }
 //出生日期选择
 const birthdayChange = function (e) {
@@ -146,6 +144,15 @@ const formRules = {
         errorMessage: '请输入正确的手机号码'
       }
     ]
+  },
+  // 对常住地进行验证
+  w_habitualResidenceCity: {
+    rules: [
+      {
+        required: true,
+        errorMessage: '请填写常住地'
+      }
+    ]
   }
 }
 //消息提示
@@ -154,20 +161,23 @@ const messageToggle = (type, text) => {
   popupList.messageText = text
   popupRef.value.open()
 }
+// 添加页面切换
+const changeAddState = () => {
+  formData.value = JSON.parse(JSON.stringify(baseFormData))
+  addState.value = !addState.value
+}
 // 表单提交/校验
 const formSubmit = () => {
-  console.log('formData.value', formData.value)
   formRef.value
     .validate()
     .then(res => {
-      console.log('表单数据信息：', res)
       add({
         data: formData.value
       }).then(res => {
         if (res.statusCode == 200) {
           messageToggle('success', '提交成功!')
           setTimeout(() => {
-            location.reload()
+            changeAddState()
           }, 1000)
         } else {
           messageToggle('error', '提交失败!')
@@ -175,7 +185,6 @@ const formSubmit = () => {
       })
     })
     .catch(err => {
-      console.log('表单错误信息：', err)
       messageToggle('error', err[0].errorMessage)
     })
 }
@@ -227,11 +236,11 @@ onMounted(() => {})
               <picker
                 class="pickerStyle"
                 @change="workTypeChange"
-                :value="formData.w_typeWork"
+                :value="workTypeIndex"
                 :range="workTypeList"
                 range-key="text"
               >
-                <view>{{ workTypeList[formData.w_typeWork].text }}</view>
+                <view>{{ formData.w_typeWork }}</view>
               </picker>
             </uni-forms-item>
             <uni-forms-item label="出生日期" name="w_birthday">
@@ -276,7 +285,7 @@ onMounted(() => {})
               <image src="@/static/alicon/edit-square.svg" mode=""></image>
               <text>经常居住地</text>
             </view>
-            <uni-forms-item label="所在地区" name="w_habitualResidenceCity">
+            <uni-forms-item label="所在地区" name="w_habitualResidenceCity" required>
               <AddressPicker :baseCode="baseAddressCode" @change="addressChange">
                 {{ formData.w_habitualResidenceCity || '请选择地址' }}
               </AddressPicker>
@@ -310,6 +319,7 @@ onMounted(() => {})
           </view>
         </uni-forms>
         <button @click="formSubmit" class="formSubmit">提交</button>
+        <view style="height: 1rpx"></view>
         <!-- 提示信息弹窗 -->
         <uni-popup ref="popupRef" type="message">
           <uni-popup-message
@@ -324,9 +334,13 @@ onMounted(() => {})
 </template>
 <style lang="scss" scoped>
 .addContainer {
-  min-height: 100%;
+  width: 100%;
+  height: 100%;
   position: relative;
   margin-bottom: 50rpx;
+  // background-image: url('@/static/image/home/BG1.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 
   .addBox {
     .addTitle {
@@ -460,9 +474,12 @@ onMounted(() => {})
     width: 100%;
     font-size: 32rpx;
   }
+  box-sizing: border-box;
 
   .formSubmit {
-    min-height: 100rpx;
+    width: 100%;
+    height: 100rpx;
+    margin: 40rpx auto;
     display: flex;
     align-items: center;
     justify-content: center;

@@ -8,11 +8,12 @@ import AllAddress from '@/utils/AddressData.js'
 import AddressPicker from '@/components/lingdang-AddressPicker/AddressPicker.vue'
 
 // 初始化工种列表
-baseWorkTypeList.unshift({
-  value: 0,
-  text: '不限'
-})
-const workTypeList = baseWorkTypeList
+const workTypeList = [
+  {
+    value: 0,
+    text: '不限'
+  }
+].concat(JSON.parse(JSON.stringify(baseWorkTypeList)))
 const provinceIndex = ref(0) //省份下标
 let page = 1 // 初始查询页grade
 const loading = ref(false)
@@ -25,7 +26,7 @@ const form = reactive({
 const engineerList = ref([])
 const engineerClick = item => {
   uni.navigateTo({
-    url: `/components/private/worker/index?serviceData=${JSON.stringify(item)}`
+    url: `/components/private/worker/index?w_id=${JSON.stringify(item.w_id)}`
   })
 }
 // 工种选择
@@ -128,8 +129,7 @@ const clickLoadMore = () => {
       page,
       pageSize: 10,
       w_typeWork: form.workType,
-      w_addressCity: form.address.split('-')[0],
-      w_address: form.address.split('-')[1]
+      w_habitualResidenceCity: form.address
     }
   }).then(res => {
     console.log('res', res.data.data)
@@ -248,6 +248,9 @@ onMounted(() => {})
   height: 100%;
   display: flex;
   flex-direction: column;
+  // background-image: url('@/static/image/home/BG1.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
   .rowText1Active {
     color: #2979ff;
   }

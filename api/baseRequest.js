@@ -7,6 +7,7 @@ function add(data) {
     data: data
   })
 }
+
 function worker(data) {
   return http({
     url: '/worker/id',
@@ -14,6 +15,7 @@ function worker(data) {
     data: data
   })
 }
+
 function workers(data) {
   return http({
     url: '/worker',
@@ -22,4 +24,20 @@ function workers(data) {
   })
 }
 
-export { add, worker, workers }
+function login(data) {
+  return http({
+    url: '/user/login',
+    method: 'POST',
+    data: data
+  })
+}
+
+function construction(data) {
+  return http({
+    url: '/worker/construction',
+    method: 'GET',
+    data: data
+  })
+}
+
+export { add, worker, workers, login, construction }

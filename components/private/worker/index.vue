@@ -9,10 +9,9 @@ const workerData = ref({})
 const pageState = ref(true)
 //获取当前路由参数
 onLoad(option => {
-  console.log('serviceData', JSON.parse(decodeURIComponent(option.serviceData)))
   worker({
     data: {
-      w_id: JSON.parse(decodeURIComponent(option.serviceData)).w_id
+      w_id: JSON.parse(decodeURIComponent(option.w_id))
     }
   }).then(res => {
     console.log('res', res)

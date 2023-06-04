@@ -5,3 +5,4 @@ export default {
   // url: 'http://172.16.1.32:9876',
   url: 'http://nas.zmyus.top:9876'
 }
+	

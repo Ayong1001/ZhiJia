@@ -1,33 +1,40 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { construction } from '@/api/baseRequest'
 
 let current = ref(0)
 let swiperDotIndex = ref(0)
 
 //请求数据
-const dataList = ref([])
-const getList = () => {}
+const constructionData = ref([])
+const getConstruction = () => {
+  construction().then(res => {
+    if (res.statusCode === 200) {
+      constructionData.value = res.data.data || []
+    }
+  })
+}
 onMounted(() => {
-  // getList()
+  getConstruction()
 })
 
-const info = [
-  {
-    colorClass: 'uni-bg-red',
-    url: '/static/image/home/mmexport1617207387677.jpg',
-    content: '内容 A'
-  },
-  {
-    colorClass: 'uni-bg-green',
-    url: '/static/image/home/2021-05-14-00-00-53-677.jpg',
-    content: '内容 B'
-  },
-  {
-    colorClass: 'uni-bg-blue',
-    url: '/static/image/home/2021-05-14-00-00-58-305.jpg',
-    content: '内容 C'
-  }
-]
+// const info = [
+//   {
+//     colorClass: 'uni-bg-red',
+//     url: '/static/image/home/mmexport1617207387677.jpg',
+//     content: '内容 A'
+//   },
+//   {
+//     colorClass: 'uni-bg-green',
+//     url: '/static/image/home/2021-05-14-00-00-53-677.jpg',
+//     content: '内容 B'
+//   },
+//   {
+//     colorClass: 'uni-bg-blue',
+//     url: '/static/image/home/2021-05-14-00-00-58-305.jpg',
+//     content: '内容 C'
+//   }
+// ]
 const otherBoxList = [
   {
     name: '信息录入',
@@ -66,7 +73,7 @@ const BoxItemBtn = item => {
       <text>智佳家装</text>
     </view>
     <view class="swiper-box">
-      <swiper class="swiper" circular autoplay :current="swiperDotIndex">
+      <!-- <swiper class="swiper" circular autoplay :current="swiperDotIndex">
         <swiper-item
           class="swiper-item"
           :style="{ backgroundImage: `url(${item.url})` }"
@@ -75,12 +82,18 @@ const BoxItemBtn = item => {
         >
           <text style="color: #000000; font-size: 64rpx">{{ item.content }}</text>
         </swiper-item>
-      </swiper>
-      <view class="swiperOtherBox">
+      </swiper> -->
+      <view class="imgBox">
+        <image src="../../static/image/home/topImg.jpg" mode=""></image>
+      </view>
+      <view class="swiperOtherBox1">
         <view class="OtherBoxItem" v-for="item in otherBoxList" @click="BoxItemBtn(item)">
           <image :src="item.imgUrl" mode=""></image>
           <text>{{ item.name }}</text>
         </view>
+      </view>
+      <view class="swiperOtherBox2">
+        <image src="../../static/image/home/adv1.png" mode=""></image>
       </view>
     </view>
     <view class="main">
@@ -104,16 +117,16 @@ const BoxItemBtn = item => {
               <uni-th width="70" align="center">种类</uni-th>
               <uni-th width="70" align="center">开工日期</uni-th>
               <uni-th width="100" align="center">预计完成日期</uni-th>
-              <uni-th width="40" align="center">进度</uni-th>
+              <uni-th width="50" align="center">进度</uni-th>
             </uni-tr>
             <!-- 表格数据行 -->
-            <uni-tr v-for="item in 5" :key="item">
-              <uni-td align="center">给对大萨</uni-td>
-              <uni-td align="center">成都市新都区新都小区12栋1单元1201</uni-td>
-              <uni-td align="center">水木施工</uni-td>
-              <uni-td align="center">2023.3.3</uni-td>
-              <uni-td align="center">2023.4.4</uni-td>
-              <uni-td align="center">80%</uni-td>
+            <uni-tr v-for="(item, index) in constructionData" :key="index">
+              <uni-td align="center">{{ item.w_name }}</uni-td>
+              <uni-td align="center">{{ item.o_address }}</uni-td>
+              <uni-td align="center">{{ item.o_type }}</uni-td>
+              <uni-td align="center">{{ item.o_firstDate }}</uni-td>
+              <uni-td align="center">{{ item.o_lastDate }}</uni-td>
+              <uni-td align="center">{{ item.o_schedule }}%</uni-td>
             </uni-tr>
           </uni-table>
         </view>
@@ -124,13 +137,15 @@ const BoxItemBtn = item => {
 
 <style lang="scss" scoped>
 .homeContainer {
+  width: 100%;
   height: 100%;
   font-size: 28rpx;
   line-height: 48rpx;
   position: relative;
   display: flex;
   flex-direction: column;
-  background-color: #fff;
+  // background-image: url('@/static/image/home/BG1.png');
+  background-size: 100% 100%;
 
   .temp {
     flex: 1;
@@ -150,27 +165,37 @@ const BoxItemBtn = item => {
   .swiper-box {
     position: relative;
 
-    .swiper {
+    .imgBox {
+      width: 100%;
       height: 400rpx;
-
-      .swiper-item {
-        height: 600rpx;
-        background-repeat: no-repeat;
-      }
-
-      ::v-deep .uni-swiper__dots-box {
-        height: 16rpx;
-        left: -70%;
-        top: 35%;
-        transform: translate(0, -50%);
+      image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
       }
     }
+    // .swiper {
+    //   height: 400rpx;
 
-    .swiperOtherBox {
-      width: 560rpx;
+    //   .swiper-item {
+    //     height: 600rpx;
+    //     background-repeat: no-repeat;
+    //   }
+
+    //   ::v-deep .uni-swiper__dots-box {
+    //     height: 16rpx;
+    //     left: -70%;
+    //     top: 35%;
+    //     transform: translate(0, -50%);
+    //   }
+    // }
+
+    .swiperOtherBox1 {
+      width: 600rpx;
       height: 200rpx;
       padding: 0 20rpx;
       border-radius: 10rpx;
+      box-sizing: border-box;
       box-shadow: 10rpx 10rpx 10rpx #82828257;
       position: absolute;
       z-index: 999;
@@ -204,12 +229,28 @@ const BoxItemBtn = item => {
         }
       }
     }
+    .swiperOtherBox2 {
+      width: 600rpx;
+      height: 200rpx;
+      border-radius: 10rpx;
+      box-shadow: 10rpx 10rpx 10rpx #82828257;
+      position: absolute;
+      z-index: 999;
+      left: 50%;
+      bottom: -260rpx;
+      transform: translate(-50%, 0);
+      image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
   }
 }
 
 .main {
   flex: 1;
-  margin-top: 80rpx;
+  margin-top: 260rpx;
 
   .active {
     height: 100%;

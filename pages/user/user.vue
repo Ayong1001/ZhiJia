@@ -1,30 +1,4 @@
 <script setup>
-import { ref, reactive } from 'vue'
-
-let RealNameState = ref(false)
-const walletUserList = reactive([
-  {
-    num: 68.49,
-    des: '余额',
-    badgeText: ''
-  },
-  {
-    num: 63.79,
-    des: '收入',
-    badgeText: '近30天'
-  },
-  {
-    num: 260,
-    des: '宝币',
-    badgeText: ''
-  },
-  {
-    num: 7,
-    des: '卡券',
-    badgeText: '新卡券'
-  }
-])
-
 const orderUserList = [
   {
     text: '导出账单',
