@@ -19,6 +19,13 @@ onLoad(option => {
       return
     } else {
       workerData.value = res.data.data
+      if(res.data.data.w_garde == 1){
+        workerData.value.w_garde = '金牌师傅'
+      }else if(res.data.data.w_garde == 2){
+        workerData.value.w_garde = '银牌师傅'
+      }else{
+        workerData.value.w_garde = '铜牌师傅'
+      }
       pageState.value = true
     }
   })
@@ -98,10 +105,10 @@ const imgList = [
       </view>
       <view class="userBox">
         <view class="userNameBox">
-          <text class="userName">蔡师傅</text>
+          <text class="userName">{{workerData.w_name }}</text>
           <uni-tag
             style="color: #0000008a; background-color: #c7c7c84a"
-            text="木工"
+            :text="workerData.w_typeWork"
             type="default"
             size="small"
             circle
@@ -114,11 +121,7 @@ const imgList = [
               >{{ workerData.w_addressCity }}/{{ workerData.w_typeWork }}/{{
                 workerData.w_age
               }}岁/{{ workerData.w_seniority }}年/{{
-                workerData.w_garde == 1
-                  ? '金牌师傅'
-                  : workerData.w_garde == 2
-                  ? '银牌师傅'
-                  : '铜牌师傅'
+                workerData.w_garde
               }}</text
             >
             <view class="dataBox">
@@ -146,7 +149,7 @@ const imgList = [
     </view>
     <view class="bottom">
       <view class="tabBox">
-        <tabs class="tabs" v-model:active="active" scrollspy sticky offset-top="12.5rem">
+        <tabs class="tabs" v-model:active="active" scrollspy sticky offset-top="14.35rem">
           <tab title="资料" class="tab tab1">
             <CellGroup>
               <Field

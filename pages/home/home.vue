@@ -115,7 +115,7 @@ const BoxItemBtn = item => {
               <uni-th width="70" align="center">姓名</uni-th>
               <uni-th width="200" align="center">施工地点</uni-th>
               <uni-th width="70" align="center">种类</uni-th>
-              <uni-th width="70" align="center">开工日期</uni-th>
+              <uni-th width="100" align="center">开工日期</uni-th>
               <uni-th width="100" align="center">预计完成日期</uni-th>
               <uni-th width="50" align="center">进度</uni-th>
             </uni-tr>
