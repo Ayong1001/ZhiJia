@@ -1,5 +1,12 @@
 {
-	"pages": [{
+	"easycom": {
+		// 注意一定要放在custom里，否则无效，https://ask.dcloud.net.cn/question/131175
+		"custom": {  
+	    "^u-(.*)": "uview-plus/components/u-$1/u-$1.vue" 
+		}
+	},
+	"pages": [
+		{
 			"path": "pages/home/home",
 			"style": {
 				"navigationBarTitleText": "首页",
@@ -21,7 +28,6 @@
 			}
 		},
 		{
-
 			"path": "pages/user/user",
 			"style": {
 				"navigationBarTitleText": "个人中心",
@@ -30,6 +36,14 @@
 		},
 		{
 			"path": "components/private/worker/index",
+			"style": {
+				"navigationBarTitleText": "工人详情",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "components/common/service/from/index",
+			"navigationBarTitleText": "表单编辑",
 			"style": {
 				"navigationStyle": "custom"
 			}
@@ -49,7 +63,8 @@
 		"selectedColor": "#343893",
 		"borderStyle": "black",
 		"backgroundColor": "#fff",
-		"list": [{
+		"list": [
+			{
 				"pagePath": "pages/home/home",
 				"iconPath": "static/image/tabBar/home.png",
 				"selectedIconPath": "static/image/tabBar/home-active.png",
@@ -66,17 +81,18 @@
 				"iconPath": "static/image/tabBar/menu.png",
 				"selectedIconPath": "static/image/tabBar/menu-active.png",
 				"text": "服务"
-			}, {
-				"pagePath": "pages/user/user",
+			},
+			{
+				// "pagePath": "pages/user/user",
 				// "pagePath": "components/private/worker/index",
+				"pagePath": "components/common/service/from/index",
 				"iconPath": "static/image/tabBar/my.png",
 				"selectedIconPath": "static/image/tabBar/my-active.png",
 				"text": "个人中心"
 			}
 		]
-
 	},
-	 "condition": { //模式配置，仅开发期间生效
+	"condition": { //模式配置，仅开发期间生效
 		"current": 0, //当前激活的模式（list 的索引项）
 		"list": []
 	}
