@@ -1,120 +1,13 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, reactive } from 'vue'
 import { add } from '@/api/baseRequest'
 import countryData from '@/utils/country.js'
-import workTypeList from '@/utils/workTypeList.js'
 import AddressPicker from '@/components/lingdang-AddressPicker/AddressPicker.vue'
 
-const list = reactive([
-  {
-    type: 'input',
-    text: '工人姓名',
-    name: 'w_name',
-    data: '高先生',
-    disable: true
-  },
-  {
-    type: 'picker',
-    text: '工种',
-    name: 'w_typeWork',
-    data: 0,
-    dataList: workTypeList,
-    disable: true
-  },
-  {
-    type: 'datePicker',
-    text: '出生日期',
-    name: 'w_typeWork',
-    data: null,
-    disable: true
-  },
-  {
-    type: 'input',
-    text: '工龄',
-    name: 'w_seniority',
-    data: 0,
-    disable: true
-  },
-  {
-    type: 'picker',
-    text: '师傅等级',
-    name: 'w_typeWork',
-    data: 0,
-    dataList: [],
-    disable: true
-  },
-  {
-    type: 'input',
-    text: '完工件数',
-    name: 'w_typeWork',
-    data: 0,
-    disable: true
-  },
-  {
-    type: 'input',
-    text: '施工单价',
-    name: 'w_price',
-    data: 0,
-    disable: true
-  },
-  {
-    type: 'addressPicker',
-    text: '所在地区',
-    name: 'w_habitualResidenceCity',
-    data: null,
-    disable: true
-  },
-])
-const form = {}
-// 初始化表单
-const initializationFrom = () => {
-  list.forEach(item => {
-    form[item.name] = item.data
-  })
-}
+// 当前表单item
+const formItem = ref({})
 
-const formRef = ref(null)
-const popupRef = ref(null)
-let baseAddressCode = ''
-const baseFormData = {
-  w_name: '', //姓名
-  w_domicileAddress: '', //户籍详细地址
-  w_phone: '', //联系电话
-  w_idType: '', //证件类型
-  w_idNumber: '', // 证件号码
-  w_typeWork: workTypeList[0].text, //工种
-  w_birthday: '', //生日
-  w_sex: null, // 性别
-  w_nationality: '中国', //国籍
-  w_domicileAddressCity: '', //户籍所在地
-  w_habitualResidenceCity: '', //经常居住地
-  w_habitualResidence: '', //经常详细地址
-  w_emergencyContact: '', //紧急联系人
-  w_addressCity: '', //现在所在地
-  w_address: '', //现在详细地址
-  w_nation: '', //民族
-  w_wechatNumber: '', //微信号
-  w_email: '', //邮箱
-  w_emergencyPhone: '' //紧急联系电话
-}
-//form表单数据
-const formData = ref(JSON.parse(JSON.stringify(baseFormData)))
-
-const popupList = {
-  msgType: '',
-  messageText: ''
-}
-//性别选择
-const sexs = [
-  {
-    text: '男',
-    value: 1
-  },
-  {
-    text: '女',
-    value: 0
-  }
-]
+const pickerList = ['小工', '水工', '电工', '木工']
 //身份类型选择
 const IdentityTypeList = [
   {
@@ -138,43 +31,123 @@ const IdentityTypeList = [
     text: '其它证件'
   }
 ]
-//工种选择
-const workTypeIndex = ref(0)
-const workTypeChange = e => {
-  workTypeIndex.value = e.detail.value
-  formData.value.w_typeWork = workTypeList[e.detail.value].text
-}
-//出生日期选择
-const birthdayChange = function (e) {
-  formData.value.w_birthday = e
-}
-//国籍选择
-const countryChange = e => {
-  formData.value.w_nationality = countryData[e.detail.value].country_name_cn
-}
-//户籍所在地
-const permanentAddressChange = result => {
-  formData.value.w_domicileAddressCity = ''
-  result.forEach((item, index) => {
-    if (index === 0) {
-      formData.value.w_domicileAddressCity += item.name
-    } else {
-      formData.value.w_domicileAddressCity += '-' + item.name
-    }
+const list = reactive([
+  {
+    type: 'input',
+    text: '工人姓名',
+    code: 'w_name',
+    data: '高先生',
+    disable: false
+  },
+  {
+    type: 'picker',
+    text: '工种',
+    code: 'w_typeWork',
+    data: 0,
+    dataList: pickerList,
+    disable: false
+  },
+  {
+    type: 'datePicker',
+    text: '出生日期',
+    code: 'w_birthday',
+    data: null,
+    disable: false
+  },
+  {
+    type: 'input',
+    text: '工龄',
+    code: 'w_seniority',
+    data: null,
+    disable: false
+  },
+  {
+    type: 'picker',
+    text: '师傅等级',
+    code: 'w_garde',
+    data: 0,
+    dataList: [
+      {
+        value: 0,
+        text: '铜牌师傅'
+      },
+      {
+        value: 1,
+        text: '金牌师傅'
+      },
+      {
+        value: 2,
+        text: '银牌师傅'
+      }
+    ],
+    disable: false
+  },
+  {
+    type: 'input',
+    text: '完工件数',
+    code: 'w_completedQuantity',
+    data: null,
+    disable: false
+  },
+  {
+    type: 'input',
+    text: '施工单价',
+    code: 'w_price',
+    data: null,
+    disable: false
+  },
+  {
+    type: 'addressPicker',
+    text: '所在地区',
+    code: 'w_habitualResidenceCity',
+    data: null,
+    disable: false
+  },
+  {
+    type: 'picker',
+    text: '身份类型',
+    code: 'w_idType',
+    data: 0,
+    dataList: IdentityTypeList,
+    disable: false
+  },
+  {
+    type: 'picker',
+    text: '国籍选择',
+    code: 'w_nationality',
+    data: 0,
+    dataList: countryData,
+    dataListText: 'country_name_cn',
+    disable: false
+  }
+])
+const form = reactive({})
+// 初始化表单
+const initializationFrom = () => {
+  list.forEach(item => {
+    form[item.code] = item.data
   })
 }
-//常住地址
-const addressChange = result => {
-  formData.value.w_habitualResidenceCity = ''
-  result.forEach((item, index) => {
-    if (index === 0) {
-      formData.value.w_habitualResidenceCity += item.name
-    } else {
-      formData.value.w_habitualResidenceCity += '-' + item.name
-    }
-  })
+
+const formRef = ref(null)
+const popupRef = ref(null)
+let baseAddressCode = ''
+const popupList = {
+  msgType: '',
+  messageText: ''
 }
-//
+//性别选择
+const sexs = [
+  {
+    text: '男',
+    value: 1
+  },
+  {
+    text: '女',
+    value: 0
+  }
+]
+// 校验规则
 const formRules = {
   // 对name字段进行必填验证
   w_name: {
@@ -222,6 +195,40 @@ const formRules = {
     ]
   }
 }
+
+// 表单item点击事件
+const formItemClick = value => {
+  formItem.value = value
+  console.log('formItem.value', formItem.value)
+}
+//单列选择
+// const getRangeKey = () => {
+//   return formItem.value.dataListText ? formItem.value.dataListText : 'text'
+// }
+const pickerChange = e => {
+  form[formItem.value.code] = e.detail.value
+  return
+  form[formItem.value.code] = formItem.value.dataListText
+    ? formItem.value.dataList[e.detail.value][formItem.value.dataListText]
+    : formItem.value.dataList[e.detail.value].value || formItem.value.dataList[e.detail.value]
+  console.log('form[formItem.value.code]', form[formItem.value.code])
+}
+//出生日期选择
+const dateChange = function (e) {
+  form[formItem.value.code] = e
+}
+//地址选择
+const addressChange = result => {
+  form[formItem.value.code] = ''
+  result.forEach((item, index) => {
+    if (index === 0) {
+      form[formItem.value.code] += item.name
+    } else {
+      form[formItem.value.code] += '-' + item.name
+    }
+  })
+}
+
 //消息提示
 const messageToggle = (type, text) => {
   popupList.msgType = type
@@ -238,8 +245,7 @@ const formSubmit = () => {
       }).then(res => {
         if (res.statusCode == 200) {
           messageToggle('success', '提交成功!')
-          setTimeout(() => {
-          }, 1000)
+          setTimeout(() => {}, 1000)
         } else {
           messageToggle('error', '提交失败!')
         }
@@ -249,7 +255,9 @@ const formSubmit = () => {
       messageToggle('error', err[0].errorMessage)
     })
 }
-onMounted(() => {})
+onMounted(() => {
+  initializationFrom()
+})
 </script>
 
 <template>
@@ -263,96 +271,56 @@ onMounted(() => {})
       <view class="addFormBox">
         <uni-forms ref="formRef" :modelValue="formData" :rules="formRules">
           <view class="formItem">
-            <uni-forms-item label="姓名" name="w_name" required>
-              <input type="text" v-model="formData.w_name" placeholder="请输入姓名" />
-            </uni-forms-item>
-            <uni-forms-item label="性别" name="w_sex" required>
-              <uni-data-checkbox v-model="formData.w_sex" :localdata="sexs" />
-            </uni-forms-item>
-            <uni-forms-item label="联系电话" name="w_phone" required>
-              <input type="text" v-model="formData.w_phone" placeholder="请输入联系电话" />
-            </uni-forms-item>
-            <uni-forms-item label="证件类型" name="w_idType">
-              <uni-data-select
-                v-model="formData.w_idType"
-                :localdata="IdentityTypeList"
-              ></uni-data-select>
-            </uni-forms-item>
-            <uni-forms-item label="证件号码" name="w_idNumber">
-              <input type="text" v-model="formData.w_idNumber" placeholder="请输入证件号码" />
-            </uni-forms-item>
-            <uni-forms-item label="工种" name="w_typeWork" required>
-              <picker
-                class="pickerStyle"
-                @change="workTypeChange"
-                :value="workTypeIndex"
-                :range="workTypeList"
-                range-key="text"
+            <view v-for="(item, index) in list" :key="index">
+              <uni-forms-item v-if="item.type === 'input'" :label="item.text" :name="item.code">
+                <input type="text" v-model="form[item.code]" :placeholder="`请输入${item.text}`" />
+              </uni-forms-item>
+              <uni-forms-item v-if="item.type === 'checkbox'" :label="item.text" :name="item.code">
+                <uni-data-checkbox v-model="form[item.code]" :localdata="sexs" />
+              </uni-forms-item>
+              <uni-forms-item v-if="item.type === 'select'" :label="item.text" :name="item.code">
+                <uni-data-select
+                  v-model="form[item.code]"
+                  :localdata="item.dataList"
+                ></uni-data-select>
+              </uni-forms-item>
+              <uni-forms-item
+                v-if="item.type === 'datePicker'"
+                :label="item.text"
+                :name="item.code"
               >
-                <view>{{ formData.w_typeWork }}</view>
-              </picker>
-            </uni-forms-item>
-            <uni-forms-item label="出生日期" name="w_birthday">
-              <uni-datetime-picker
-                type="date"
-                v-model="formData.w_birthday"
-                @change="birthdayChange"
-              />
-            </uni-forms-item>
-            <uni-forms-item label="国籍" name="w_nationality">
-              <picker
-                class="pickerStyle"
-                @change="countryChange"
-                :value="formData.w_nationality"
-                :range="countryData"
-                range-key="country_name_cn"
+                <uni-datetime-picker
+                  type="date"
+                  v-model="form[item.code]"
+                  @change="dateChange"
+                  @click="formItemClick(item)"
+                />
+              </uni-forms-item>
+              <uni-forms-item v-if="item.type === 'picker'" :label="item.text" :name="item.code">
+                <picker
+                  class="pickerStyle"
+                  @change="pickerChange"
+                  @click="formItemClick(item)"
+                  :range="item.dataList"
+                  :range-key="item.dataListText ? item.dataListText : 'text'"
+                >
+                  <view>{{ showChoose() }}</view>
+                </picker>
+              </uni-forms-item>
+              <uni-forms-item
+                v-if="item.type === 'addressPicker'"
+                :label="item.text"
+                :name="item.code"
               >
-                <view>{{ formData.w_nationality }}</view>
-              </picker>
-            </uni-forms-item>
-          </view>
-          <view class="formItem">
-            <uni-forms-item label="所在地区" name="w_domicileAddressCity">
-              <AddressPicker :baseCode="baseAddressCode" @change="permanentAddressChange">
-                {{ formData.w_domicileAddressCity || '请选择地址' }}
-              </AddressPicker>
-            </uni-forms-item>
-            <uni-forms-item label="详细地址" name="w_domicileAddress">
-              <input
-                type="text"
-                v-model="formData.w_domicileAddress"
-                placeholder="请输入详细地址"
-              />
-            </uni-forms-item>
-          </view>
-          <view class="formItem">
-            <uni-forms-item label="所在地区" name="w_habitualResidenceCity" required>
-              <AddressPicker :baseCode="baseAddressCode" @change="addressChange">
-                {{ formData.w_habitualResidenceCity || '请选择地址' }}
-              </AddressPicker>
-            </uni-forms-item>
-            <uni-forms-item label="详细地址" name="w_habitualResidence">
-              <input
-                type="text"
-                v-model="formData.w_habitualResidence"
-                placeholder="请输入详细地址"
-              />
-            </uni-forms-item>
-          </view>
-          <view class="formItem">
-            <uni-forms-item label="微信号" name="w_wechatNumber">
-              <input type="text" v-model="formData.w_wechatNumber" placeholder="请输入微信号" />
-            </uni-forms-item>
-            <uni-forms-item label="邮箱" name="name">
-              <input type="text" v-model="formData.w_email" placeholder="请输入邮箱" />
-            </uni-forms-item>
-            <uni-forms-item label="紧急联系电话" name="name">
-              <input
-                type="text"
-                v-model="formData.w_emergencyPhone"
-                placeholder="请输入紧急联系电话"
-              />
-            </uni-forms-item>
+                <AddressPicker
+                  :baseCode="baseAddressCode"
+                  @change="addressChange"
+                  @click="formItemClick(item)"
+                >
+                  {{ form[item.code] || '请选择地址' }}
+                </AddressPicker>
+              </uni-forms-item>
+            </view>
           </view>
         </uni-forms>
         <button @click="formSubmit" class="formSubmit">提交</button>
