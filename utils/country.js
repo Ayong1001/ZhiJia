@@ -492,7 +492,7 @@ export default [{
 		"country_id": 100076,
 		"country_code": 852,
 		"country_name_en": "Hongkong",
-		"country_name_cn": "香港",
+		"country_name_cn": "中国香港",
 		"ab": "HK"
 	},
 	{
@@ -695,7 +695,7 @@ export default [{
 		"country_id": 100105,
 		"country_code": 853,
 		"country_name_en": "Macao",
-		"country_name_cn": "澳门",
+		"country_name_cn": "中国澳门",
 		"ab": "MO"
 	},
 	{
@@ -1178,7 +1178,7 @@ export default [{
 		"country_id": 100174,
 		"country_code": 886,
 		"country_name_en": "Taiwan",
-		"country_name_cn": "台湾省",
+		"country_name_cn": "中国台湾",
 		"ab": "TW"
 	},
 	{

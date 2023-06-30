@@ -36,89 +36,109 @@ const list = reactive([
     type: 'input',
     text: '工人姓名',
     code: 'w_name',
-    data: '高先生',
-    disable: false
+    data: '高先生'
   },
   {
     type: 'picker',
     text: '工种',
     code: 'w_typeWork',
-    data: 0,
-    dataList: pickerList,
-    disable: false
+    data: '小工',
+    dataConfig: {
+      dataList: pickerList
+    }
   },
   {
     type: 'datePicker',
     text: '出生日期',
     code: 'w_birthday',
-    data: null,
-    disable: false
+    data: null
   },
   {
     type: 'input',
     text: '工龄',
     code: 'w_seniority',
     data: null,
-    disable: false
+    disabled: true
   },
   {
     type: 'picker',
     text: '师傅等级',
     code: 'w_garde',
     data: 0,
-    dataList: [
-      {
-        value: 0,
-        text: '铜牌师傅'
-      },
-      {
-        value: 1,
-        text: '金牌师傅'
-      },
-      {
-        value: 2,
-        text: '银牌师傅'
-      }
-    ],
-    disable: false
+    dataConfig: {
+      dataList: [
+        {
+          value: 0,
+          text: '铜牌师傅'
+        },
+        {
+          value: 1,
+          text: '金牌师傅'
+        },
+        {
+          value: 2,
+          text: '银牌师傅'
+        }
+      ],
+      dataListText: 'text'
+    }
   },
   {
     type: 'input',
     text: '完工件数',
     code: 'w_completedQuantity',
-    data: null,
-    disable: false
+    data: null
   },
   {
     type: 'input',
     text: '施工单价',
     code: 'w_price',
-    data: null,
-    disable: false
+    data: null
   },
   {
     type: 'addressPicker',
     text: '所在地区',
     code: 'w_habitualResidenceCity',
-    data: null,
-    disable: false
+    data: null
   },
   {
     type: 'picker',
     text: '身份类型',
     code: 'w_idType',
     data: 0,
-    dataList: IdentityTypeList,
-    disable: false
+    dataConfig: {
+      dataList: IdentityTypeList,
+      dataListText: 'text'
+    }
   },
   {
     type: 'picker',
     text: '国籍选择',
     code: 'w_nationality',
-    data: 0,
-    dataList: countryData,
-    dataListText: 'country_name_cn',
-    disable: false
+    data: '中国',
+    dataConfig: {
+      dataList: countryData,
+      dataListText: 'country_name_cn',
+      dataType: 'country_name_cn' //form的数据类型
+    }
+  },
+  {
+    type: 'checkbox',
+    text: '性别',
+    code: 'w_sex',
+    data: null,
+    dataConfig: {
+      dataList: [
+        {
+          text: '男',
+          value: 1
+        },
+        {
+          text: '女',
+          value: 0
+        }
+      ]
+    }
   }
 ])
 const form = reactive({})
@@ -136,17 +156,6 @@ const popupList = {
   msgType: '',
   messageText: ''
 }
-//性别选择
-const sexs = [
-  {
-    text: '男',
-    value: 1
-  },
-  {
-    text: '女',
-    value: 0
-  }
-]
 // 校验规则
 const formRules = {
   // 对name字段进行必填验证
@@ -199,19 +208,22 @@ const formRules = {
 // 表单item点击事件
 const formItemClick = value => {
   formItem.value = value
-  console.log('formItem.value', formItem.value)
 }
 //单列选择
-// const getRangeKey = () => {
-//   return formItem.value.dataListText ? formItem.value.dataListText : 'text'
-// }
 const pickerChange = e => {
-  form[formItem.value.code] = e.detail.value
-  return
-  form[formItem.value.code] = formItem.value.dataListText
-    ? formItem.value.dataList[e.detail.value][formItem.value.dataListText]
-    : formItem.value.dataList[e.detail.value].value || formItem.value.dataList[e.detail.value]
-  console.log('form[formItem.value.code]', form[formItem.value.code])
+  if (formItem.value.dataConfig.dataType) {
+    form[formItem.value.code] =
+      formItem.value.dataConfig.dataList[e.detail.value][formItem.value.dataConfig.dataType]
+  } else if (formItem.value.dataConfig.dataListText) {
+    form[formItem.value.code] = e.detail.value
+  } else {
+    form[formItem.value.code] = formItem.value.dataConfig.dataList[e.detail.value]
+  }
+}
+const showChoose = item => {
+  return item.dataConfig.dataListText && item.dataConfig.dataList[form[item.code]]
+    ? item.dataConfig.dataList[Number(form[item.code])][item.dataConfig.dataListText]
+    : form[item.code]
 }
 //出生日期选择
 const dateChange = function (e) {
@@ -237,6 +249,8 @@ const messageToggle = (type, text) => {
 }
 // 表单提交/校验
 const formSubmit = () => {
+  console.log(form)
+  return
   formRef.value
     .validate()
     .then(res => {
@@ -272,11 +286,19 @@ onMounted(() => {
         <uni-forms ref="formRef" :modelValue="formData" :rules="formRules">
           <view class="formItem">
             <view v-for="(item, index) in list" :key="index">
-              <uni-forms-item v-if="item.type === 'input'" :label="item.text" :name="item.code">
+              <uni-forms-item
+                v-if="item.type === 'input'"
+                :label="item.text"
+                :name="item.code"
+                :disabled="item.disabled"
+              >
                 <input type="text" v-model="form[item.code]" :placeholder="`请输入${item.text}`" />
               </uni-forms-item>
               <uni-forms-item v-if="item.type === 'checkbox'" :label="item.text" :name="item.code">
-                <uni-data-checkbox v-model="form[item.code]" :localdata="sexs" />
+                <uni-data-checkbox
+                  v-model="form[item.code]"
+                  :localdata="item.dataConfig.dataList"
+                />
               </uni-forms-item>
               <uni-forms-item v-if="item.type === 'select'" :label="item.text" :name="item.code">
                 <uni-data-select
@@ -301,10 +323,11 @@ onMounted(() => {
                   class="pickerStyle"
                   @change="pickerChange"
                   @click="formItemClick(item)"
-                  :range="item.dataList"
-                  :range-key="item.dataListText ? item.dataListText : 'text'"
+                  :range="item.dataConfig.dataList"
+                  :range-key="item.dataConfig.dataListText"
                 >
-                  <view>{{ showChoose() }}</view>
+                  <view>{{ showChoose(item) }}</view>
+                  <!-- <view>{{ form[item.code] }}</view> -->
                 </picker>
               </uni-forms-item>
               <uni-forms-item
