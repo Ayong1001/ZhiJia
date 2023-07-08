@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { worker } from '@/api/baseRequest'
+import workTypeList from '@/utils/workTypeList.js'
 import { Tab, Tabs, Field, CellGroup, Cell, showImagePreview } from 'vant'
 import 'vant/lib/index.css'
 
@@ -101,6 +102,144 @@ const inputDialog = ref(null)
 const dialogToggle = type => {
   inputDialog.value.open()
 }
+
+//编辑信息
+const editClick = () => {
+  const pickerList = workTypeList.map(item => {
+    return item.text
+  })
+  // 传入表单数据
+  const list = [
+    {
+      type: 'input',
+      text: '工人姓名',
+      code: 'w_name',
+      data: workerData.value.w_name
+    },
+    {
+      type: 'picker',
+      text: '工种',
+      code: 'w_typeWork',
+      data: workerData.value.w_typeWork,
+      dataConfig: {
+        dataList: pickerList
+      }
+    },
+    {
+      type: 'datePicker',
+      text: '出生日期',
+      code: 'w_birthday',
+      data: workerData.value.w_birthday
+    },
+    {
+      type: 'input',
+      text: '工龄',
+      code: 'w_seniority',
+      data: workerData.value.w_seniority,
+      disabled: true
+    },
+    {
+      type: 'picker',
+      text: '师傅等级',
+      code: 'w_garde',
+      data: workerData.value.w_garde,
+      dataConfig: {
+        dataList: [
+          {
+            value: 0,
+            text: '铜牌师傅'
+          },
+          {
+            value: 1,
+            text: '金牌师傅'
+          },
+          {
+            value: 2,
+            text: '银牌师傅'
+          }
+        ],
+        dataListText: 'text'
+      }
+    },
+    {
+      type: 'input',
+      text: '完工件数',
+      code: 'w_completedQuantity',
+      data: workerData.value.w_completedQuantity
+    },
+    {
+      type: 'input',
+      text: '施工单价',
+      code: 'w_price',
+      data: workerData.value.w_price
+    },
+    {
+      type: 'addressPicker',
+      text: '所在地区',
+      code: 'w_habitualResidenceCity',
+      data: workerData.value.w_habitualResidenceCity
+    }
+  ]
+  // 校验规则
+  const formRules = {
+    // 对name字段进行必填验证
+    w_name: {
+      rules: [
+        {
+          required: true,
+          errorMessage: '请输入姓名'
+        },
+        {
+          minLength: 2,
+          maxLength: 8,
+          errorMessage: '姓名长度在 {minLength} 到 {maxLength} 个字符'
+        }
+      ]
+    },
+    // 对性别进行验证
+    w_sex: {
+      rules: [
+        {
+          required: true,
+          errorMessage: '请选择性别'
+        }
+      ]
+    },
+    // 对手机号码进行验证
+    w_phone: {
+      rules: [
+        {
+          required: true,
+          errorMessage: '请输入手机号码'
+        },
+        {
+          pattern: '^1[3-9]\\d{9}$',
+          errorMessage: '请输入正确的手机号码'
+        }
+      ]
+    },
+    // 对常住地进行验证
+    w_habitualResidenceCity: {
+      rules: [
+        {
+          required: true,
+          errorMessage: '请填写常住地'
+        }
+      ]
+    }
+  }
+  //请求配置
+  const request = {
+    url: '/worker/update',
+    methods: 'PUT'
+  }
+  //带数据跳转信息编辑页
+  uni.navigateTo({
+    url: `/components/common/service/form/index?list=${JSON.stringify(
+      list
+    )}&formRules=${JSON.stringify(formRules)}&request=${JSON.stringify(request)}`
+  })
+}
 </script>
 
 <template>
@@ -111,15 +250,20 @@ const dialogToggle = type => {
       </view>
       <view class="userBox">
         <view class="userNameBox">
-          <text class="userName">{{ workerData.w_name }}</text>
-          <uni-tag
-            style="color: #0000008a; background-color: #c7c7c84a"
-            :text="workerData.w_typeWork"
-            type="default"
-            size="small"
-            circle
-            inverted
-          />
+          <view>
+            <text class="userName">{{ workerData.w_name }}</text>
+            <uni-tag
+              style="color: #0000008a; background-color: #c7c7c84a"
+              :text="workerData.w_typeWork"
+              type="default"
+              size="small"
+              circle
+              inverted
+            />
+          </view>
+          <button class="editBtn" type="default" plain="true" size="mini" @click="editClick">
+            编辑
+          </button>
         </view>
         <view class="avatarBox">
           <view class="avatarBoxLeft">
@@ -326,13 +470,24 @@ const dialogToggle = type => {
       }
 
       .userNameBox {
+        padding: 0 50rpx 0 100rpx;
         display: flex;
         align-items: end;
+        justify-content: space-between;
 
         .userName {
           font-size: 40rpx;
           font-weight: bold;
-          margin: 0 50rpx 0 100rpx;
+          margin-right: 50rpx;
+        }
+        .editBtn {
+          margin: 0;
+          padding: 0;
+          width: 80rpx;
+          height: 40rpx;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
       }
 
