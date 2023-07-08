@@ -69,9 +69,6 @@ const BoxItemBtn = item => {
 
 <template>
   <view class="homeContainer">
-    <view class="homeTop">
-      <text>智佳家装</text>
-    </view>
     <view class="swiper-box">
       <!-- <swiper class="swiper" circular autoplay :current="swiperDotIndex">
         <swiper-item
@@ -85,6 +82,9 @@ const BoxItemBtn = item => {
       </swiper> -->
       <view class="imgBox">
         <image src="../../static/image/home/topImg.jpg" mode=""></image>
+        <view class="homeTop">
+          <text>智佳家装</text>
+        </view>
       </view>
       <view class="swiperOtherBox1">
         <view class="OtherBoxItem" v-for="item in otherBoxList" @click="BoxItemBtn(item)">
@@ -152,12 +152,17 @@ const BoxItemBtn = item => {
   }
 
   .homeTop {
+    position: absolute;
+    top: 0;
+    left: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     height: 120rpx;
 
     text {
+      margin-left: 10rpx;
+      font-family: cursive;
       font-size: 56rpx;
     }
   }
@@ -168,6 +173,7 @@ const BoxItemBtn = item => {
     .imgBox {
       width: 100%;
       height: 400rpx;
+      position: relative;
       image {
         width: 100%;
         height: 100%;
@@ -191,17 +197,12 @@ const BoxItemBtn = item => {
     // }
 
     .swiperOtherBox1 {
-      width: 600rpx;
-      height: 200rpx;
+      width: 100%;
+      height: 150rpx;
       padding: 0 20rpx;
       border-radius: 10rpx;
       box-sizing: border-box;
       box-shadow: 10rpx 10rpx 10rpx #82828257;
-      position: absolute;
-      z-index: 999;
-      left: 50%;
-      bottom: -40rpx;
-      transform: translate(-50%, 0);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -209,7 +210,7 @@ const BoxItemBtn = item => {
 
       .OtherBoxItem {
         width: 160rpx;
-        height: 180rpx;
+        height: 130rpx;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -217,28 +218,24 @@ const BoxItemBtn = item => {
         cursor: pointer;
 
         image {
-          width: 80rpx;
-          height: 80rpx;
+          width: 65rpx;
+          height: 65rpx;
           object-fit: cover;
           margin-bottom: 10rpx;
         }
 
         text {
-          font-size: 32rpx;
+          font-size: 28rpx;
           font-weight: bold;
         }
       }
     }
     .swiperOtherBox2 {
-      width: 600rpx;
+      width: 100%;
       height: 200rpx;
       border-radius: 10rpx;
       box-shadow: 10rpx 10rpx 10rpx #82828257;
-      position: absolute;
-      z-index: 999;
-      left: 50%;
       bottom: -260rpx;
-      transform: translate(-50%, 0);
       image {
         width: 100%;
         height: 100%;
@@ -250,8 +247,6 @@ const BoxItemBtn = item => {
 
 .main {
   flex: 1;
-  margin-top: 260rpx;
-
   .active {
     height: 100%;
     box-sizing: border-box;
@@ -268,6 +263,9 @@ const BoxItemBtn = item => {
       font-size: 40rpx;
       padding-bottom: 12rpx;
       border-bottom: 2rpx #00000014 solid;
+      text {
+        font-size: 32rpx;
+      }
 
       .titleLeft {
         display: flex;
@@ -275,9 +273,9 @@ const BoxItemBtn = item => {
         font-weight: 600;
 
         image {
-          width: 80rpx;
-          height: 80rpx;
-          margin-right: 40rpx;
+          width: 55rpx;
+          height: 55rpx;
+          margin-right: 20rpx;
         }
       }
 

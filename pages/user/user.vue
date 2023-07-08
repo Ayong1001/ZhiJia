@@ -39,11 +39,15 @@ const toolUserList = [
     imgUrl: '/static/alicon/file.svg'
   }
 ]
+
+// 退出登录
+const outLogin = () => {
+}
 </script>
 
 <template>
   <view class="userContainer">
-    <text class="title">我的</text>
+    <!-- <text class="title">我的</text> -->
     <view class="top">
       <image src="@/static/alicon/user1.svg" mode=""></image>
       <view class="userText">
@@ -69,11 +73,11 @@ const toolUserList = [
         />
       </uni-list>
     </view>
-    <button class="bottomBtn" type="primary">退出登录</button>
+    <button class="bottomBtn" type="primary" @click="outLogin">退出登录</button>
   </view>
 </template>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
 .userContainer {
   width: 100%;
   height: 100%;
@@ -91,12 +95,12 @@ const toolUserList = [
   .top {
     box-sizing: border-box;
     width: 100%;
-    padding: 0 80rpx;
+    padding: 100rpx 80rpx 0 40rpx;
     display: flex;
 
     image {
-      width: 140rpx;
-      height: 140rpx;
+      width: 100rpx;
+      height: 100rpx;
     }
 
     .userText {
@@ -105,7 +109,7 @@ const toolUserList = [
       flex-direction: column-reverse;
 
       .userName {
-        font-size: 52rpx;
+        font-size: 38rpx;
       }
 
       .userDes {
@@ -116,7 +120,7 @@ const toolUserList = [
   }
 
   .vip1 {
-    width: 600rpx;
+    width: 100%;
     height: 160rpx;
     margin: 40rpx 0;
   }
@@ -152,11 +156,14 @@ const toolUserList = [
     align-items: center;
 
     .toolsList {
-      width: 620rpx;
+      width: 100%;
 
       .listItem {
         width: 100%;
         height: 100rpx;
+        /deep/ .uni-list-item__content-title {
+          font-size: 32rpx;
+        }
       }
     }
   }

@@ -83,9 +83,9 @@
 				"text": "服务"
 			},
 			{
-				// "pagePath": "pages/user/user",
+				"pagePath": "pages/user/user",
 				// "pagePath": "components/private/worker/index",
-				"pagePath": "components/common/service/from/index",
+				// "pagePath": "components/common/service/from/index",
 				"iconPath": "static/image/tabBar/my.png",
 				"selectedIconPath": "static/image/tabBar/my-active.png",
 				"text": "个人中心"

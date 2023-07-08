@@ -19,11 +19,11 @@ onLoad(option => {
       return
     } else {
       workerData.value = res.data.data
-      if(res.data.data.w_garde == 1){
+      if (res.data.data.w_garde == 1) {
         workerData.value.w_garde = '金牌师傅'
-      }else if(res.data.data.w_garde == 2){
+      } else if (res.data.data.w_garde == 2) {
         workerData.value.w_garde = '银牌师傅'
-      }else{
+      } else {
         workerData.value.w_garde = '铜牌师傅'
       }
       pageState.value = true
@@ -41,7 +41,7 @@ const imgClick = item => {
 //
 const dataList = [
   {
-    id: 'w_address',
+    id: 'w_habitualResidenceCity',
     name: '地区'
   },
   {
@@ -95,6 +95,12 @@ const imgList = [
   '/static/image/home/1616860018685.webp',
   '/static/image/home/2021-05-14-00-00-53-677.jpg'
 ]
+
+//联系师傅
+const inputDialog = ref(null)
+const dialogToggle = type => {
+  inputDialog.value.open()
+}
 </script>
 
 <template>
@@ -105,7 +111,7 @@ const imgList = [
       </view>
       <view class="userBox">
         <view class="userNameBox">
-          <text class="userName">{{workerData.w_name }}</text>
+          <text class="userName">{{ workerData.w_name }}</text>
           <uni-tag
             style="color: #0000008a; background-color: #c7c7c84a"
             :text="workerData.w_typeWork"
@@ -118,9 +124,9 @@ const imgList = [
         <view class="avatarBox">
           <view class="avatarBoxLeft">
             <text class="des"
-              >{{ workerData.w_addressCity }}/{{ workerData.w_typeWork }}/{{
-                workerData.w_age
-              }}岁/{{ workerData.w_seniority }}年/{{
+              >{{ workerData.w_habitualResidenceCity?.split('-')[0] }}/{{
+                workerData.w_typeWork
+              }}/{{ workerData.w_age }}岁/{{ workerData.w_seniority }}年/{{
                 workerData.w_garde
               }}</text
             >
@@ -227,17 +233,17 @@ const imgList = [
               <Cell class="title1" title="完工照片" center></Cell>
               <Cell>
                 <view class="imgBox">
-                  <image
+                  <!-- <image
                     v-for="item in imgList"
                     @click="imgClick(item)"
                     :src="item"
                     mode="heightFix"
-                  />
+                  /> -->
                 </view>
               </Cell>
             </CellGroup>
           </tab>
-          <tab title="联系" class="tab tab1">
+          <!-- <tab title="联系" class="tab tab1">
             <CellGroup>
               <Cell class="title1" title="联系师傅" center></Cell>
               <Field
@@ -252,7 +258,32 @@ const imgList = [
               >
               </Field>
             </CellGroup>
-          </tab>
+          </tab> -->
+          <button class="btn" @click="dialogToggle('success')">联系师傅</button>
+          <uni-popup ref="inputDialog" type="dialog">
+            <uni-popup-dialog
+              ref="inputClose"
+              mode="input"
+              title="联系师傅"
+              placeholder="请输入内容"
+              @confirm="dialogInputConfirm"
+            >
+              <CellGroup>
+                <Field
+                  v-for="(item, index) in contactList"
+                  v-model="workerData[item.id]"
+                  :label="item.name"
+                  center
+                  readonly
+                  colon
+                  clickable
+                  :key="index"
+                >
+                </Field>
+              </CellGroup>
+            </uni-popup-dialog>
+          </uni-popup>
+          <view style="height: 1rpx"></view>
         </tabs>
       </view>
     </view>
@@ -336,7 +367,7 @@ const imgList = [
               }
 
               .dataNum {
-                font-size: 50rpx;
+                font-size: 40rpx;
                 font-weight: bold;
                 margin-right: 5rpx;
               }
@@ -348,7 +379,7 @@ const imgList = [
           margin-left: 10rpx;
 
           image {
-            width: 150rpx;
+            width: 180rpx;
             height: 200rpx;
             object-fit: cover;
           }
@@ -366,6 +397,7 @@ const imgList = [
       height: 100%;
 
       .tabs {
+        box-sizing: border-box;
         .title1 {
           font-size: 34rpx;
           font-weight: bold;
@@ -407,8 +439,8 @@ const imgList = [
             align-items: center;
 
             image {
-              width: 50rpx;
-              height: 50rpx;
+              width: 35rpx;
+              height: 35rpx;
               object-fit: cover;
               margin-right: 10rpx;
             }
@@ -422,7 +454,7 @@ const imgList = [
           .message {
             box-sizing: border-box;
             width: 100%;
-            padding: 15rpx 50rpx 0 50rpx;
+            padding: 0 50rpx;
             display: flex;
             justify-content: space-between;
 
@@ -430,6 +462,14 @@ const imgList = [
               font-size: 28rpx;
             }
           }
+        }
+        .btn {
+          width: 100%;
+          height: 100rpx;
+          margin: 40rpx auto;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
       }
     }

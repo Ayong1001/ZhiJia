@@ -358,8 +358,8 @@ onMounted(() => {})
       // border-bottom: 0;
 
       image {
-        width: 80rpx;
-        height: 80rpx;
+        width: 50rpx;
+        height: 50rpx;
       }
     }
 

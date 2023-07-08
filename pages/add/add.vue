@@ -385,7 +385,7 @@ onMounted(() => {})
           border-bottom: 2rpx #dadada solid;
           display: flex;
           align-items: center;
-          font-size: 36rpx;
+          font-size: 28rpx;
           font-weight: 600;
 
           image {
