@@ -1,13 +1,14 @@
 // #ifndef VUE3
 import Vue from 'vue'
 import App from './App'
+// import uviewPlus from 'uview-plus'
 
 Vue.config.productionTip = false
 
 App.mpType = 'app'
 
 const app = new Vue({
-	...App
+  ...App
 })
 app.$mount()
 // #endif
@@ -17,10 +18,11 @@ import { createSSRApp } from 'vue'
 import App from './App.vue'
 
 export function createApp() {
-	const app = createSSRApp(App)
-	// uni.$u.config.unit = 'rpx'
-	return {
-		app
-	}
+  const app = createSSRApp(App)
+  // app.use(uviewPlus)
+  // uni.$u.config.unit = 'rpx'
+  return {
+    app
+  }
 }
 // #endif

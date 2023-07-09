@@ -1,23 +1,18 @@
 <script setup>
 import { onMounted, ref, reactive } from 'vue'
-import { onLoad } from '@dcloudio/uni-app'
-import http from '@/utils/request.js'
 import AddressPicker from '@/components/lingdang-AddressPicker/AddressPicker.vue'
 
-const list = ref([]) //表单项
-const formRules = ref({}) //表单校验
-const request = ref({}) //请求配置
-onLoad(option => {
-  list.value = JSON.parse(decodeURIComponent(option.list))
-  formRules.value = JSON.parse(decodeURIComponent(option.formRules))
-  request.value = JSON.parse(decodeURIComponent(option.request))
+const props = defineProps({
+  list: Array,
+  formRules: Object
 })
-
+const list = ref(props.list)
+const formRules = ref(props.formRules)
 // 初始化表单
 const form = reactive({})
 const initializationFrom = () => {
   list.value.forEach(item => {
-    form[item.code] = item.data
+    form[item.code] = item.data || null
   })
 }
 const formItem = ref({}) // 当前表单item
@@ -71,33 +66,22 @@ const messageToggle = (type, text) => {
   popupList.messageText = text
   popupRef.value.open()
 }
-// 表单提交/校验
+// 表单校验后返回数据
 const formSubmit = () => {
-  console.log(form)
-  formRef.value
+  console.log('form', form)
+  return formRef.value
     .validate()
     .then(res => {
-      http({
-        url: request.value.url,
-        method: request.value.methods,
-        data: form
-      }).then(res => {
-        if (res.statusCode == 200) {
-          messageToggle('success', '提交成功!')
-          setTimeout(() => {}, 1000)
-        } else {
-          messageToggle('error', '提交失败!')
-        }
-      })
+      return form
     })
     .catch(err => {
       messageToggle('error', err[0].errorMessage)
     })
 }
-//返回页面
-const backPage = () => {
-  uni.navigateBack()
-}
+
+defineExpose({
+  formSubmit
+})
 
 onMounted(() => {
   initializationFrom()
@@ -160,15 +144,7 @@ onMounted(() => {
 <template>
   <view class="addContainer">
     <view class="addBox">
-      <view class="backImgBox">
-        <image class="backImg" src="@/static/alicon/right.svg" @click="backPage" mode=""></image>
-      </view>
-      <view class="addTitle">
-        <view class="addTitleCenter">
-          <text>编辑信息</text>
-        </view>
-      </view>
-      <view class="addFormBox">
+      <view class="addFormBox" v-if="list.length">
         <uni-forms ref="formRef" :modelValue="form" :rules="formRules || {}">
           <view class="formItem">
             <view v-for="(item, index) in list" :key="index">
@@ -231,7 +207,6 @@ onMounted(() => {
             </view>
           </view>
         </uni-forms>
-        <button @click="formSubmit" class="formSubmit">提交</button>
         <view style="height: 1rpx"></view>
         <!-- 提示信息弹窗 -->
         <uni-popup ref="popupRef" type="message">
@@ -256,47 +231,6 @@ onMounted(() => {
   background-repeat: no-repeat;
 
   .addBox {
-    .backImgBox {
-      box-sizing: border-box;
-      padding: 20rpx;
-
-      .backImg {
-        width: 50rpx;
-        height: 50rpx;
-        object-fit: cover;
-        transform: rotate(180deg);
-      }
-    }
-    .addTitle {
-      height: 120rpx;
-      padding: 0 20rpx;
-      position: relative;
-      font-size: 36rpx;
-      background-color: #fff;
-      border-bottom: 2rpx #dadada solid;
-      display: flex;
-      align-items: center;
-
-      .addTitleLeft {
-        display: flex;
-        align-items: center;
-
-        image {
-          width: 60rpx;
-          height: 60rpx;
-          object-fit: cover;
-          transform: rotate(180deg);
-        }
-      }
-
-      .addTitleCenter {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-      }
-    }
-
     .addFormBox {
       .formItem {
         padding: 0 40rpx;
@@ -382,14 +316,5 @@ onMounted(() => {
     font-size: 32rpx;
   }
   box-sizing: border-box;
-
-  .formSubmit {
-    width: 100%;
-    height: 100rpx;
-    margin: 40rpx auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
 }
 </style>

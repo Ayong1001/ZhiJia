@@ -1,205 +1,215 @@
 <script setup>
+import http from '@/utils/request.js'
+import { ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 import Form from '@/components/common/service/form'
-import countryData from '@/utils/country.js'
 
-const pickerList = ['123', '456'] //工种选择
-//身份类型选择
-const IdentityTypeList = [
-  {
-    value: 0,
-    text: '居民身份证'
-  },
-  {
-    value: 1,
-    text: '护照'
-  },
-  {
-    value: 2,
-    text: '台胞证'
-  },
-  {
-    value: 3,
-    text: '港澳通行证'
-  },
-  {
-    value: 4,
-    text: '其它证件'
-  }
-]
-// 传入表单数据
-const list = [
-  {
-    type: 'input',
-    text: '工人姓名',
-    code: 'w_name',
-    data: '高先生'
-  },
-  {
-    type: 'picker',
-    text: '工种',
-    code: 'w_typeWork',
-    data: '小工',
-    dataConfig: {
-      dataList: pickerList
+const formRef = ref(null)
+const formConfig = ref({}) //表单配置
+onLoad(option => {
+  formConfig.value = JSON.parse(decodeURIComponent(option.formConfig))
+})
+//消息提示
+const popupRef = ref(null)
+const popupList = {
+  msgType: '',
+  messageText: ''
+}
+const messageToggle = (type, text) => {
+  popupList.msgType = type
+  popupList.messageText = text
+  popupRef.value.open()
+}
+//若为折叠面板时
+const collapseValue = ['0']
+const operate = (type, index) => {
+  if (type === 'add') {
+    if (formConfig.value.dataList.length > 2) {
+      messageToggle('error', '目前最多填加三条装修历史！')
+      return
     }
-  },
-  {
-    type: 'datePicker',
-    text: '出生日期',
-    code: 'w_birthday',
-    data: null
-  },
-  {
-    type: 'input',
-    text: '工龄',
-    code: 'w_seniority',
-    data: null,
-    disabled: true
-  },
-  {
-    type: 'picker',
-    text: '师傅等级',
-    code: 'w_garde',
-    data: 0,
-    dataConfig: {
-      dataList: [
-        {
-          value: 0,
-          text: '铜牌师傅'
-        },
-        {
-          value: 1,
-          text: '金牌师傅'
-        },
-        {
-          value: 2,
-          text: '银牌师傅'
-        }
-      ],
-      dataListText: 'text'
-    }
-  },
-  {
-    type: 'input',
-    text: '完工件数',
-    code: 'w_completedQuantity',
-    data: null
-  },
-  {
-    type: 'input',
-    text: '施工单价',
-    code: 'w_price',
-    data: null
-  },
-  {
-    type: 'addressPicker',
-    text: '所在地区',
-    code: 'w_habitualResidenceCity',
-    data: null
-  },
-  {
-    type: 'picker',
-    text: '身份类型',
-    code: 'w_idType',
-    data: 0,
-    dataConfig: {
-      dataList: IdentityTypeList,
-      dataListText: 'text'
-    }
-  },
-  {
-    type: 'picker',
-    text: '国籍选择',
-    code: 'w_nationality',
-    data: '中国',
-    dataConfig: {
-      dataList: countryData,
-      dataListText: 'country_name_cn',
-      dataType: 'country_name_cn' //form的数据类型
-    }
-  },
-  {
-    type: 'checkbox',
-    text: '性别',
-    code: 'w_sex',
-    data: null,
-    dataConfig: {
-      dataList: [
-        {
-          text: '男',
-          value: 1
-        },
-        {
-          text: '女',
-          value: 0
-        }
-      ]
-    }
-  }
-]
-// 校验规则
-const formRules = {
-  // 对name字段进行必填验证
-  w_name: {
-    rules: [
+    formConfig.value.dataList.push([
       {
-        required: true,
-        errorMessage: '请输入姓名'
+        type: 'input',
+        text: '施工项目',
+        code: 'address',
+        data: null
       },
       {
-        minLength: 2,
-        maxLength: 8,
-        errorMessage: '姓名长度在 {minLength} 到 {maxLength} 个字符'
-      }
-    ]
-  },
-  // 对性别进行验证
-  w_sex: {
-    rules: [
-      {
-        required: true,
-        errorMessage: '请选择性别'
-      }
-    ]
-  },
-  // 对手机号码进行验证
-  w_phone: {
-    rules: [
-      {
-        required: true,
-        errorMessage: '请输入手机号码'
+        type: 'input',
+        text: '施工年份',
+        code: 'date',
+        data: null
       },
       {
-        pattern: '^1[3-9]\\d{9}$',
-        errorMessage: '请输入正确的手机号码'
-      }
-    ]
-  },
-  // 对常住地进行验证
-  w_habitualResidenceCity: {
-    rules: [
+        type: 'input',
+        text: '施工所在地区',
+        code: 'city',
+        data: null
+      },
       {
-        required: true,
-        errorMessage: '请填写常住地'
+        type: 'input',
+        text: '师傅等级',
+        code: 'garde',
+        data: null
+      },
+      {
+        type: 'input',
+        text: '施工价格',
+        code: 'price',
+        data: null
       }
-    ]
+    ])
+  } else if (type === 'del') {
+    formConfig.value.dataList.splice(index, 1)
+    console.log('formConfig.value.dataList', formConfig.value.dataList)
   }
 }
-//请求配置
-const request = {
-  url: '123',
-  methods: 'POST'
+const formSubmit = () => {
+  let formData = null
+  if (formConfig.value.type === 'default') {
+    formData = formRef.value.formSubmit()
+  } else if (formConfig.value.type === 'collapse') {
+    formData = formRef.value.map(item => {
+      return item.formSubmit()
+    })
+  }
+  console.log('formData', formData)
+  return
+  http({
+    url: formConfig.request.url,
+    method: formConfig.request.methods,
+    data: formData
+  }).then(res => {
+    if (res.statusCode == 200) {
+      messageToggle('success', '提交成功!')
+      setTimeout(() => {}, 1000)
+    } else {
+      messageToggle('error', '提交失败!')
+    }
+  })
+}
+//返回页面
+const backPage = () => {
+  uni.navigateBack()
 }
 </script>
 
 <template>
   <view class="main">
-    <Form :list="list" :formRules="formRules" :request="request"></Form>
+    <view class="addTitle">
+      <view class="addTitleLeft">
+        <image src="/static/alicon/right.svg" @click="backPage" mode="aspectFit"></image>
+      </view>
+      <view class="addTitleCenter">
+        <text>编辑信息</text>
+      </view>
+    </view>
+    <uni-section v-if="formConfig.type === 'default'" :title="formConfig.text" type="line">
+      <Form ref="formRef" :list="formConfig.dataList" :formRules="formConfig.formRules"></Form>
+    </uni-section>
+    <uni-section v-if="formConfig.type === 'collapse'" :title="formConfig.text" type="line">
+      <uni-collapse ref="collapse" accordion v-model="collapseValue" @change="collapseChange">
+        <uni-collapse-item
+          v-for="(collapseItem, collapseIndex) in formConfig.dataList"
+          :key="collapseIndex"
+        >
+          <template v-slot:title>
+            <uni-list>
+              <uni-list-item :title="'装修历史-' + (collapseIndex + 1)">
+                <template v-slot:footer>
+                  <text class="delBtn" @click.stop="operate('del', collapseIndex)">删除</text>
+                </template>
+              </uni-list-item>
+            </uni-list>
+          </template>
+          <Form
+            ref="formRef"
+            :list="collapseItem"
+            :formRules="formConfig.formRules"
+            :key="collapseItem"
+          ></Form>
+        </uni-collapse-item>
+      </uni-collapse>
+      <button size="mini" type="primary" class="addBtn" @click.stop="operate('add')">
+        新增装修历史
+      </button>
+    </uni-section>
+    <button @click="formSubmit" class="formSubmit">提交</button>
+    <!-- 提示信息弹窗 -->
+    <uni-popup ref="popupRef" type="message">
+      <uni-popup-message
+        :type="popupList.msgType"
+        :message="popupList.messageText"
+        :duration="2000"
+      ></uni-popup-message>
+    </uni-popup>
   </view>
 </template>
 
-<style lang="less" scoped>
+<style lang="scss" scoped>
 .main {
   width: 100%;
+  .backImgBox {
+    box-sizing: border-box;
+    padding: 20rpx;
+    background-color: #fff;
+    .backImg {
+      width: 50rpx;
+      height: 50rpx;
+      object-fit: cover;
+      opacity: 1;
+      transform: rotate(180deg);
+    }
+  }
+  .addTitle {
+    height: 120rpx;
+    padding: 0 20rpx;
+    position: relative;
+    font-size: 36rpx;
+    background-color: #fff;
+    // border-bottom: 2rpx #dadada solid;
+    display: flex;
+    align-items: center;
+
+    .addTitleLeft {
+      display: flex;
+      align-items: center;
+
+      image {
+        width: 60rpx;
+        height: 60rpx;
+        object-fit: cover;
+        transform: rotate(180deg);
+      }
+    }
+
+    .addTitleCenter {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+  }
+  .formSubmit {
+    width: 100%;
+    height: 100rpx;
+    margin: 40rpx auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .delBtn {
+    color: #e43d33;
+  }
+  .addBtn {
+    margin: auto;
+    margin: 20rpx 0;
+  }
+  ::v-deep .uni-section-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 }
 </style>

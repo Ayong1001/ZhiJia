@@ -66,6 +66,11 @@ const dataList = [
     name: '等级'
   }
 ]
+const historyList = [
+  ['w_1', 'w_2', 'w_3', 'w_4', 'w_5'],
+  ['w_1', 'w_2', 'w_3', 'w_4', 'w_5'],
+  ['w_1', 'w_2', 'w_3', 'w_4', 'w_5']
+]
 const priceList = [
   {
     id: 'w_historyPrice',
@@ -104,140 +109,213 @@ const dialogToggle = type => {
 }
 
 //编辑信息
-const editClick = () => {
+const editClick = type => {
   const pickerList = workTypeList.map(item => {
     return item.text
   })
   // 传入表单数据
-  const list = [
-    {
-      type: 'input',
-      text: '工人姓名',
-      code: 'w_name',
-      data: workerData.value.w_name
-    },
-    {
-      type: 'picker',
-      text: '工种',
-      code: 'w_typeWork',
-      data: workerData.value.w_typeWork,
-      dataConfig: {
-        dataList: pickerList
+  const formConfig1 = {
+    type: 'default',
+    text: '基本信息',
+    dataList: [
+      {
+        type: 'input',
+        text: '工人姓名',
+        code: 'w_name',
+        data: workerData.value.w_name
+      },
+      {
+        type: 'picker',
+        text: '工种',
+        code: 'w_typeWork',
+        data: workerData.value.w_typeWork,
+        dataConfig: {
+          dataList: pickerList
+        }
+      },
+      {
+        type: 'datePicker',
+        text: '出生日期',
+        code: 'w_birthday',
+        data: workerData.value.w_birthday
+      },
+      {
+        type: 'input',
+        text: '工龄',
+        code: 'w_seniority',
+        data: workerData.value.w_seniority,
+        disabled: true
+      },
+      {
+        type: 'picker',
+        text: '师傅等级',
+        code: 'w_garde',
+        data: workerData.value.w_garde,
+        dataConfig: {
+          dataList: [
+            {
+              value: 0,
+              text: '铜牌师傅'
+            },
+            {
+              value: 1,
+              text: '金牌师傅'
+            },
+            {
+              value: 2,
+              text: '银牌师傅'
+            }
+          ],
+          dataListText: 'text'
+        }
+      },
+      {
+        type: 'input',
+        text: '完工件数',
+        code: 'w_completedQuantity',
+        data: workerData.value.w_completedQuantity
+      },
+      {
+        type: 'input',
+        text: '施工单价',
+        code: 'w_price',
+        data: workerData.value.w_price
+      },
+      {
+        type: 'addressPicker',
+        text: '所在地区',
+        code: 'w_habitualResidenceCity',
+        data: workerData.value.w_habitualResidenceCity
       }
-    },
-    {
-      type: 'datePicker',
-      text: '出生日期',
-      code: 'w_birthday',
-      data: workerData.value.w_birthday
-    },
-    {
-      type: 'input',
-      text: '工龄',
-      code: 'w_seniority',
-      data: workerData.value.w_seniority,
-      disabled: true
-    },
-    {
-      type: 'picker',
-      text: '师傅等级',
-      code: 'w_garde',
-      data: workerData.value.w_garde,
-      dataConfig: {
-        dataList: [
+    ],
+    formRules: {
+      // 对name字段进行必填验证
+      w_name: {
+        rules: [
           {
-            value: 0,
-            text: '铜牌师傅'
+            required: true,
+            errorMessage: '请输入姓名'
           },
           {
-            value: 1,
-            text: '金牌师傅'
-          },
-          {
-            value: 2,
-            text: '银牌师傅'
+            minLength: 2,
+            maxLength: 8,
+            errorMessage: '姓名长度在 {minLength} 到 {maxLength} 个字符'
           }
-        ],
-        dataListText: 'text'
+        ]
+      },
+      // 对性别进行验证
+      w_sex: {
+        rules: [
+          {
+            required: true,
+            errorMessage: '请选择性别'
+          }
+        ]
+      },
+      // 对手机号码进行验证
+      w_phone: {
+        rules: [
+          {
+            required: true,
+            errorMessage: '请输入手机号码'
+          },
+          {
+            pattern: '^1[3-9]\\d{9}$',
+            errorMessage: '请输入正确的手机号码'
+          }
+        ]
+      },
+      // 对常住地进行验证
+      w_habitualResidenceCity: {
+        rules: [
+          {
+            required: true,
+            errorMessage: '请填写常住地'
+          }
+        ]
       }
     },
-    {
-      type: 'input',
-      text: '完工件数',
-      code: 'w_completedQuantity',
-      data: workerData.value.w_completedQuantity
-    },
-    {
-      type: 'input',
-      text: '施工单价',
-      code: 'w_price',
-      data: workerData.value.w_price
-    },
-    {
-      type: 'addressPicker',
-      text: '所在地区',
-      code: 'w_habitualResidenceCity',
-      data: workerData.value.w_habitualResidenceCity
-    }
-  ]
-  // 校验规则
-  const formRules = {
-    // 对name字段进行必填验证
-    w_name: {
-      rules: [
-        {
-          required: true,
-          errorMessage: '请输入姓名'
-        },
-        {
-          minLength: 2,
-          maxLength: 8,
-          errorMessage: '姓名长度在 {minLength} 到 {maxLength} 个字符'
-        }
-      ]
-    },
-    // 对性别进行验证
-    w_sex: {
-      rules: [
-        {
-          required: true,
-          errorMessage: '请选择性别'
-        }
-      ]
-    },
-    // 对手机号码进行验证
-    w_phone: {
-      rules: [
-        {
-          required: true,
-          errorMessage: '请输入手机号码'
-        },
-        {
-          pattern: '^1[3-9]\\d{9}$',
-          errorMessage: '请输入正确的手机号码'
-        }
-      ]
-    },
-    // 对常住地进行验证
-    w_habitualResidenceCity: {
-      rules: [
-        {
-          required: true,
-          errorMessage: '请填写常住地'
-        }
-      ]
+    request: {
+      url: '/worker/update',
+      methods: 'PUT'
     }
   }
-  //请求配置
-  const request = {
-    url: '/worker/update',
-    methods: 'PUT'
+  const formConfig2 = {
+    type: 'collapse',
+    text: '装修历史',
+    code: 'w_decorationHistory',
+    dataList: [
+      [
+        {
+          type: 'input',
+          text: '施工项目',
+          code: 'address',
+          data: '金华小区18-1-1901'
+        },
+        {
+          type: 'input',
+          text: '施工年份',
+          code: 'date',
+          data: '2021'
+        },
+        {
+          type: 'input',
+          text: '施工所在地区',
+          code: 'city',
+          data: '成都市'
+        },
+        {
+          type: 'input',
+          text: '师傅等级',
+          code: 'garde',
+          data: 1
+        },
+        {
+          type: 'input',
+          text: '施工价格',
+          code: 'price',
+          data: 85
+        }
+      ]
+    ],
+    request: {
+      url: '/worker/update',
+      methods: 'PUT'
+    }
+  }
+  const formConfig3 = {
+    type: 'default',
+    text: '参考价格',
+    dataList: [
+      {
+        type: 'input',
+        text: '历史最低单价',
+        code: 'w_11',
+        data: workerData.value.w_11
+      },
+      {
+        type: 'input',
+        text: '目前施工单价',
+        code: 'w_12',
+        data: workerData.value.w_12
+      }
+    ],
+    request: {
+      url: '/worker/update',
+      methods: 'PUT'
+    }
+  }
+  let formConfig = {}
+  if (type === 1) {
+    formConfig = formConfig1
+  } else if (type === 2) {
+    formConfig = formConfig2
+  } else if (type === 3) {
+    formConfig = formConfig3
   }
   //带数据跳转信息编辑页
   uni.navigateTo({
-    url: `/components/common/service/form/index?list=${JSON.stringify(
-      list
-    )}&formRules=${JSON.stringify(formRules)}&request=${JSON.stringify(request)}`
+    url: `/components/private/workerEdit/index?formConfig=${JSON.stringify(formConfig)}`
   })
 }
 </script>
@@ -261,7 +339,7 @@ const editClick = () => {
               inverted
             />
           </view>
-          <button class="editBtn" type="default" plain="true" size="mini" @click="editClick">
+          <button class="editBtn" type="default" plain="true" size="mini" @click="editClick(1)">
             编辑
           </button>
         </view>
@@ -317,34 +395,14 @@ const editClick = () => {
           </tab>
           <tab title="装修历史" class="tab tab2">
             <CellGroup>
-              <Cell class="title1" title="装修历史" center></Cell>
-              <Cell>
-                <view class="address">
-                  <image src="@/static/c1.png" mode="scaleToFill" />
-                  <text>金华小区18-1-1901</text>
-                </view>
-                <view class="message">
-                  <text>2021</text>
-                  <text>成都市</text>
-                  <text>金牌</text>
-                  <text>85元/小时</text>
-                </view>
+              <Cell class="title1" title="装修历史" center>
+                <template v-slot:value>
+                  <text class="editBtn2" @click.stop="editClick(2)">编辑</text>
+                </template>
               </Cell>
-              <Cell>
+              <Cell v-for="(item, index) in historyList">
                 <view class="address">
-                  <image src="@/static/c2.png" mode="scaleToFill" />
-                  <text>金华小区18-1-1901</text>
-                </view>
-                <view class="message">
-                  <text>2021</text>
-                  <text>成都市</text>
-                  <text>金牌</text>
-                  <text>85元/小时</text>
-                </view>
-              </Cell>
-              <Cell>
-                <view class="address">
-                  <image src="@/static/c3.png" mode="scaleToFill" />
+                  <image :src="`/static/c${index + 1}.png`" mode="scaleToFill" />
                   <text>金华小区18-1-1901</text>
                 </view>
                 <view class="message">
@@ -358,7 +416,11 @@ const editClick = () => {
           </tab>
           <tab title="参考价格" class="tab tab1">
             <CellGroup>
-              <Cell class="title1" title="参考价格" center></Cell>
+              <Cell class="title1" title="参考价格" center>
+                <template v-slot:value>
+                  <text class="editBtn2" @click.stop="editClick(3)">编辑</text>
+                </template>
+              </Cell>
               <Field
                 v-for="(item, index) in priceList"
                 v-model="workerData[item.id]"
@@ -433,7 +495,7 @@ const editClick = () => {
     </view>
   </view>
 </template>
-<style lang="less">
+<style lang="less" scoped>
 .userContainer {
   width: 100%;
   height: 100%;
@@ -557,6 +619,10 @@ const editClick = () => {
           font-size: 34rpx;
           font-weight: bold;
           height: 100rpx;
+          .editBtn2 {
+            font-size: 30rpx;
+            letter-spacing: 3rpx;
+          }
         }
 
         .tab {

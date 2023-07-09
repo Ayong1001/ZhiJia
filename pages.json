@@ -1,8 +1,8 @@
 {
 	"easycom": {
 		// 注意一定要放在custom里，否则无效，https://ask.dcloud.net.cn/question/131175
-		"custom": {  
-	    "^u-(.*)": "uview-plus/components/u-$1/u-$1.vue" 
+		"custom": {
+			"^u-(.*)": "uview-plus/components/u-$1/u-$1.vue"
 		}
 	},
 	"pages": [
@@ -42,8 +42,8 @@
 			}
 		},
 		{
-			"path": "components/common/service/form/index",
-			"navigationBarTitleText": "表单编辑",
+			"path": "components/private/workerEdit/index",
+			"navigationBarTitleText": "工人信息编辑",
 			"style": {
 				"navigationStyle": "custom"
 			}
