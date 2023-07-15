@@ -40,4 +40,20 @@ function construction(data) {
   })
 }
 
-export { add, worker, workers, login, construction }
+function historyorder(data) {
+  return http({
+    url: '/worker/historyorder',
+    method: 'GET',
+    data: data
+  })
+}
+
+function prices(data) {
+  return http({
+    url: '/worker/prices',
+    method: 'GET',
+    data: data
+  })
+}
+
+export { add, worker, workers, login, construction, historyorder, prices }

@@ -57,8 +57,66 @@ const otherBoxList = [
     imgUrl: '/static/image/home/location-fill.png'
   }
 ]
-const clickItem = e => {}
 //跳转页面
+const formConfig = () => {
+  return {
+    type: 'collapse',
+    text: '施工动态',
+    code: 'data',
+    dataList: constructionData.value.map(item => {
+      return [
+        {
+          type: 'input',
+          text: '姓名',
+          code: 'w_name',
+          data: item.w_name || null
+        },
+        {
+          type: 'input',
+          text: '施工地点',
+          code: 'o_address',
+          data: item.o_address || null
+        },
+        {
+          type: 'input',
+          text: '种类',
+          code: 'o_type',
+          data: item.o_type || null
+        },
+        {
+          type: 'datePicker',
+          text: '开工日期',
+          code: 'o_firstDate',
+          data: item.o_firstDate || null
+        },
+        {
+          type: 'datePicker',
+          text: '预计完成日期',
+          code: 'o_lastDate',
+          data: item.o_lastDate || null
+        },
+        {
+          type: 'input',
+          text: '进度',
+          code: 'o_schedule',
+          data: item.o_schedule || null
+        }
+      ]
+    }),
+    request: {
+      url: '/worker/construction',
+      methods: 'POST'
+    }
+  }
+}
+//工人项目编辑页跳转
+const manageClick = () => {
+  //带数据跳转信息编辑页
+  uni.navigateTo({
+    url: `/components/private/workerEdit/index?formConfig=${JSON.stringify(formConfig())}`
+  })
+}
+// 主页按钮功能跳转
 const BoxItemBtn = item => {
   console.log(item.route)
   uni.switchTab({
@@ -103,7 +161,7 @@ const BoxItemBtn = item => {
             <image src="@/static/alicon/manage.svg"></image>
             <text>施工动态</text>
           </view>
-          <view class="titleRight">
+          <view class="titleRight" @click="manageClick">
             <text>管理</text>
             <image src="@/static/alicon/right.svg"></image>
           </view>
@@ -120,7 +178,7 @@ const BoxItemBtn = item => {
               <uni-th width="50" align="center">进度</uni-th>
             </uni-tr>
             <!-- 表格数据行 -->
-            <uni-tr v-for="(item, index) in constructionData" :key="index">
+            <uni-tr v-for="(item, index) in constructionData.slice(0, 11)" :key="index">
               <uni-td align="center">{{ item.w_name }}</uni-td>
               <uni-td align="center">{{ item.o_address }}</uni-td>
               <uni-td align="center">{{ item.o_type }}</uni-td>

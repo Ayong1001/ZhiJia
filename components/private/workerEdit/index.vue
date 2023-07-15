@@ -20,74 +20,72 @@ const messageToggle = (type, text) => {
   popupList.messageText = text
   popupRef.value.open()
 }
+const initItem = data => {
+  return data.map(item => {
+    item.data = null
+    return item
+  })
+}
 //若为折叠面板时
 const collapseValue = ['0']
 const operate = (type, index) => {
   if (type === 'add') {
-    if (formConfig.value.dataList.length > 2) {
-      messageToggle('error', '目前最多填加三条装修历史！')
+    if (formConfig.value.text === '装修历史' && formConfig.value.dataList.length > 2) {
+      messageToggle('error', '目前最多填加3条装修历史！')
       return
     }
-    formConfig.value.dataList.push([
-      {
-        type: 'input',
-        text: '施工项目',
-        code: 'address',
-        data: null
-      },
-      {
-        type: 'input',
-        text: '施工年份',
-        code: 'date',
-        data: null
-      },
-      {
-        type: 'input',
-        text: '施工所在地区',
-        code: 'city',
-        data: null
-      },
-      {
-        type: 'input',
-        text: '师傅等级',
-        code: 'garde',
-        data: null
-      },
-      {
-        type: 'input',
-        text: '施工价格',
-        code: 'price',
-        data: null
-      }
-    ])
+    if (formConfig.value.text === '施工动态' && formConfig.value.dataList.length > 9) {
+      messageToggle('error', '目前最多填加10条施工动态！')
+      return
+    }
+    formConfig.value.dataList.push(initItem(formConfig.value.dataList[0]))
   } else if (type === 'del') {
     formConfig.value.dataList.splice(index, 1)
-    console.log('formConfig.value.dataList', formConfig.value.dataList)
   }
 }
-const formSubmit = () => {
-  let formData = null
+const submit = () => {
   if (formConfig.value.type === 'default') {
-    formData = formRef.value.formSubmit()
+    formRef.value.formRef
+      .validate()
+      .then(res => {
+        http({
+          url: formConfig.value.request.url,
+          method: formConfig.value.request.methods,
+          data: { data: formRef.value.formSubmit() }
+        }).then(res => {
+          if (res.statusCode == 200) {
+            messageToggle('success', '提交成功!')
+            setTimeout(() => {
+              backPage()
+            }, 500)
+          } else {
+            messageToggle('error', '提交失败!')
+          }
+        })
+      })
+      .catch(err => {
+        messageToggle('error', err[0].errorMessage)
+      })
   } else if (formConfig.value.type === 'collapse') {
-    formData = formRef.value.map(item => {
-      return item.formSubmit()
+    http({
+      url: formConfig.value.request.url,
+      method: formConfig.value.request.methods,
+      data: {
+        data: formRef.value.map(item => {
+          return item.formSubmit()
+        })
+      }
+    }).then(res => {
+      if (res.statusCode == 200) {
+        messageToggle('success', '提交成功!')
+        setTimeout(() => {
+          backPage()
+        }, 500)
+      } else {
+        messageToggle('error', '提交失败!')
+      }
     })
   }
-  console.log('formData', formData)
-  return
-  http({
-    url: formConfig.request.url,
-    method: formConfig.request.methods,
-    data: formData
-  }).then(res => {
-    if (res.statusCode == 200) {
-      messageToggle('success', '提交成功!')
-      setTimeout(() => {}, 1000)
-    } else {
-      messageToggle('error', '提交失败!')
-    }
-  })
 }
 //返回页面
 const backPage = () => {
@@ -132,10 +130,10 @@ const backPage = () => {
         </uni-collapse-item>
       </uni-collapse>
       <button size="mini" type="primary" class="addBtn" @click.stop="operate('add')">
-        新增装修历史
+        新增{{ formConfig.text }}
       </button>
     </uni-section>
-    <button @click="formSubmit" class="formSubmit">提交</button>
+    <button @click="submit" class="formSubmit">提交</button>
     <!-- 提示信息弹窗 -->
     <uni-popup ref="popupRef" type="message">
       <uni-popup-message

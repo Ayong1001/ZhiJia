@@ -40,7 +40,7 @@ const pickerChange = e => {
   }
 }
 const showChoose = item => {
-  return item.dataConfig.dataListText && item.dataConfig.dataList[form[item.code]]
+  return item.dataConfig.dataListText && item.dataConfig.dataList[Number(form[item.code])]
     ? item.dataConfig.dataList[Number(form[item.code])][item.dataConfig.dataListText]
     : form[item.code]
 }
@@ -66,21 +66,14 @@ const messageToggle = (type, text) => {
   popupList.messageText = text
   popupRef.value.open()
 }
-// 表单校验后返回数据
-const formSubmit = () => {
-  console.log('form', form)
-  return formRef.value
-    .validate()
-    .then(res => {
-      return form
-    })
-    .catch(err => {
-      messageToggle('error', err[0].errorMessage)
-    })
+// 返回数据
+const formSubmit =  () => {
+    return form
 }
 
 defineExpose({
-  formSubmit
+  formSubmit,
+  formRef
 })
 
 onMounted(() => {

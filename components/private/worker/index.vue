@@ -1,21 +1,22 @@
 <script setup>
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { worker } from '@/api/baseRequest'
+import { worker, historyorder, prices } from '@/api/baseRequest'
 import workTypeList from '@/utils/workTypeList.js'
 import { Tab, Tabs, Field, CellGroup, Cell, showImagePreview } from 'vant'
 import 'vant/lib/index.css'
 
-const workerData = ref({})
 const pageState = ref(true)
-//获取当前路由参数
+const workerData = ref({})
+const historyList = ref([])
+const priceList = ref({})
+//生命周期中获取当前路由参数
 onLoad(option => {
   worker({
     data: {
       w_id: JSON.parse(decodeURIComponent(option.w_id))
     }
   }).then(res => {
-    console.log('res', res)
     if (res.statusCode != 200) {
       return
     } else {
@@ -28,6 +29,24 @@ onLoad(option => {
         workerData.value.w_garde = '铜牌师傅'
       }
       pageState.value = true
+    }
+  })
+  //请求装修历史数据
+  historyorder({
+    data: { w_id: JSON.parse(decodeURIComponent(option.w_id)) }
+  }).then(res => {
+    if (res.statusCode == 200) {
+      historyList.value = res.data.data
+    } else {
+    }
+  })
+  //请求参考价格数据
+  prices({
+    data: { w_id: JSON.parse(decodeURIComponent(option.w_id)) }
+  }).then(res => {
+    if (res.statusCode == 200) {
+      priceList.value = res.data.data
+    } else {
     }
   })
 })
@@ -66,21 +85,6 @@ const dataList = [
     name: '等级'
   }
 ]
-const historyList = [
-  ['w_1', 'w_2', 'w_3', 'w_4', 'w_5'],
-  ['w_1', 'w_2', 'w_3', 'w_4', 'w_5'],
-  ['w_1', 'w_2', 'w_3', 'w_4', 'w_5']
-]
-const priceList = [
-  {
-    id: 'w_historyPrice',
-    name: '历史最低单价'
-  },
-  {
-    id: 'w_price',
-    name: '目前施工单价'
-  }
-]
 const contactList = [
   {
     id: '9',
@@ -114,204 +118,227 @@ const editClick = type => {
     return item.text
   })
   // 传入表单数据
-  const formConfig1 = {
-    type: 'default',
-    text: '基本信息',
-    dataList: [
-      {
-        type: 'input',
-        text: '工人姓名',
-        code: 'w_name',
-        data: workerData.value.w_name
-      },
-      {
-        type: 'picker',
-        text: '工种',
-        code: 'w_typeWork',
-        data: workerData.value.w_typeWork,
-        dataConfig: {
-          dataList: pickerList
-        }
-      },
-      {
-        type: 'datePicker',
-        text: '出生日期',
-        code: 'w_birthday',
-        data: workerData.value.w_birthday
-      },
-      {
-        type: 'input',
-        text: '工龄',
-        code: 'w_seniority',
-        data: workerData.value.w_seniority,
-        disabled: true
-      },
-      {
-        type: 'picker',
-        text: '师傅等级',
-        code: 'w_garde',
-        data: workerData.value.w_garde,
-        dataConfig: {
-          dataList: [
-            {
-              value: 0,
-              text: '铜牌师傅'
-            },
-            {
-              value: 1,
-              text: '金牌师傅'
-            },
-            {
-              value: 2,
-              text: '银牌师傅'
-            }
-          ],
-          dataListText: 'text'
-        }
-      },
-      {
-        type: 'input',
-        text: '完工件数',
-        code: 'w_completedQuantity',
-        data: workerData.value.w_completedQuantity
-      },
-      {
-        type: 'input',
-        text: '施工单价',
-        code: 'w_price',
-        data: workerData.value.w_price
-      },
-      {
-        type: 'addressPicker',
-        text: '所在地区',
-        code: 'w_habitualResidenceCity',
-        data: workerData.value.w_habitualResidenceCity
-      }
-    ],
-    formRules: {
-      // 对name字段进行必填验证
-      w_name: {
-        rules: [
-          {
-            required: true,
-            errorMessage: '请输入姓名'
-          },
-          {
-            minLength: 2,
-            maxLength: 8,
-            errorMessage: '姓名长度在 {minLength} 到 {maxLength} 个字符'
-          }
-        ]
-      },
-      // 对性别进行验证
-      w_sex: {
-        rules: [
-          {
-            required: true,
-            errorMessage: '请选择性别'
-          }
-        ]
-      },
-      // 对手机号码进行验证
-      w_phone: {
-        rules: [
-          {
-            required: true,
-            errorMessage: '请输入手机号码'
-          },
-          {
-            pattern: '^1[3-9]\\d{9}$',
-            errorMessage: '请输入正确的手机号码'
-          }
-        ]
-      },
-      // 对常住地进行验证
-      w_habitualResidenceCity: {
-        rules: [
-          {
-            required: true,
-            errorMessage: '请填写常住地'
-          }
-        ]
-      }
-    },
-    request: {
-      url: '/worker/update',
-      methods: 'PUT'
-    }
-  }
-  const formConfig2 = {
-    type: 'collapse',
-    text: '装修历史',
-    code: 'w_decorationHistory',
-    dataList: [
-      [
+  const formConfig1 = () => {
+    return {
+      type: 'default',
+      text: '基本信息',
+      dataList: [
         {
           type: 'input',
-          text: '施工项目',
-          code: 'address',
-          data: '金华小区18-1-1901'
+          text: '工人姓名',
+          code: 'w_name',
+          data: workerData.value.w_name
+        },
+        {
+          type: 'picker',
+          text: '工种',
+          code: 'w_typeWork',
+          data: workerData.value.w_typeWork,
+          dataConfig: {
+            dataList: pickerList
+          }
+        },
+        {
+          type: 'datePicker',
+          text: '出生日期',
+          code: 'w_birthday',
+          data: workerData.value.w_birthday
         },
         {
           type: 'input',
-          text: '施工年份',
-          code: 'date',
-          data: '2021'
+          text: '工龄',
+          code: 'w_seniority',
+          data: workerData.value.w_seniority,
+          disabled: true
         },
         {
-          type: 'input',
-          text: '施工所在地区',
-          code: 'city',
-          data: '成都市'
-        },
-        {
-          type: 'input',
+          type: 'picker',
           text: '师傅等级',
-          code: 'garde',
-          data: 1
+          code: 'w_garde',
+          data: workerData.value.w_garde,
+          dataConfig: {
+            dataList: [
+              {
+                value: 0,
+                text: '铜牌师傅'
+              },
+              {
+                value: 1,
+                text: '金牌师傅'
+              },
+              {
+                value: 2,
+                text: '银牌师傅'
+              }
+            ],
+            dataListText: 'text'
+          }
         },
         {
           type: 'input',
-          text: '施工价格',
-          code: 'price',
-          data: 85
+          text: '完工件数',
+          code: 'w_completedQuantity',
+          data: workerData.value.w_completedQuantity
+        },
+        {
+          type: 'input',
+          text: '施工单价',
+          code: 'w_price',
+          data: workerData.value.w_price
+        },
+        {
+          type: 'addressPicker',
+          text: '所在地区',
+          code: 'w_habitualResidenceCity',
+          data: workerData.value.w_habitualResidenceCity
         }
-      ]
-    ],
-    request: {
-      url: '/worker/update',
-      methods: 'PUT'
+      ],
+      formRules: {
+        // 对name字段进行必填验证
+        w_name: {
+          rules: [
+            {
+              required: true,
+              errorMessage: '请输入姓名'
+            },
+            {
+              minLength: 2,
+              maxLength: 8,
+              errorMessage: '姓名长度在 {minLength} 到 {maxLength} 个字符'
+            }
+          ]
+        },
+        // 对性别进行验证
+        w_sex: {
+          rules: [
+            {
+              required: true,
+              errorMessage: '请选择性别'
+            }
+          ]
+        },
+        // 对手机号码进行验证
+        w_phone: {
+          rules: [
+            {
+              required: true,
+              errorMessage: '请输入手机号码'
+            },
+            {
+              pattern: '^1[3-9]\\d{9}$',
+              errorMessage: '请输入正确的手机号码'
+            }
+          ]
+        },
+        // 对常住地进行验证
+        w_habitualResidenceCity: {
+          rules: [
+            {
+              required: true,
+              errorMessage: '请填写常住地'
+            }
+          ]
+        }
+      },
+      request: {
+        url: '/worker/update',
+        methods: 'POST'
+      }
     }
   }
-  const formConfig3 = {
-    type: 'default',
-    text: '参考价格',
-    dataList: [
-      {
-        type: 'input',
-        text: '历史最低单价',
-        code: 'w_11',
-        data: workerData.value.w_11
-      },
-      {
-        type: 'input',
-        text: '目前施工单价',
-        code: 'w_12',
-        data: workerData.value.w_12
+  const formConfig2 = () => {
+    return {
+      type: 'collapse',
+      text: '装修历史',
+      code: 'data',
+      dataList: historyList.value.map(item => {
+        return [
+          {
+            type: 'input',
+            text: '施工项目',
+            code: 'o_address',
+            data: item.o_address
+          },
+          {
+            type: 'input',
+            text: '施工年份',
+            code: 'o_date',
+            data: item.o_date
+          },
+          {
+            type: 'input',
+            text: '施工所在地区',
+            code: 'o_area',
+            data: item.o_area
+          },
+          {
+            type: 'picker',
+            text: '师傅等级',
+            code: 'o_garde',
+            data: item.o_garde || 0,
+            dataConfig: {
+              dataList: [
+                {
+                  value: 0,
+                  text: '铜牌师傅'
+                },
+                {
+                  value: 1,
+                  text: '金牌师傅'
+                },
+                {
+                  value: 2,
+                  text: '银牌师傅'
+                }
+              ],
+              dataListText: 'text'
+            }
+          },
+          {
+            type: 'input',
+            text: '施工价格',
+            code: 'o_price',
+            data: item.o_price
+          }
+        ]
+      }),
+      request: {
+        url: '/worker/update',
+        methods: 'POST'
       }
-    ],
-    request: {
-      url: '/worker/update',
-      methods: 'PUT'
+    }
+  }
+  const formConfig3 = () => {
+    return {
+      type: 'default',
+      text: '参考价格',
+      dataList: [
+        {
+          type: 'input',
+          text: '历史最低单价',
+          code: 'w_11',
+          data: priceList.value.w_historyPrice
+        },
+        {
+          type: 'input',
+          text: '目前施工单价',
+          code: 'w_12',
+          data: priceList.value.w_price
+        }
+      ],
+      request: {
+        url: '/worker/update',
+        methods: 'POST'
+      }
     }
   }
   let formConfig = {}
   if (type === 1) {
-    formConfig = formConfig1
+    formConfig = formConfig1()
   } else if (type === 2) {
-    formConfig = formConfig2
+    formConfig = formConfig2()
   } else if (type === 3) {
-    formConfig = formConfig3
+    formConfig = formConfig3()
   }
   //带数据跳转信息编辑页
   uni.navigateTo({
@@ -400,16 +427,24 @@ const editClick = type => {
                   <text class="editBtn2" @click.stop="editClick(2)">编辑</text>
                 </template>
               </Cell>
-              <Cell v-for="(item, index) in historyList">
+              <Cell v-for="(item, index) in historyList.slice(0, 4)" :key="index">
                 <view class="address">
                   <image :src="`/static/c${index + 1}.png`" mode="scaleToFill" />
-                  <text>金华小区18-1-1901</text>
+                  <text>{{ item.o_address }}</text>
                 </view>
                 <view class="message">
-                  <text>2021</text>
-                  <text>成都市</text>
-                  <text>金牌</text>
-                  <text>85元/小时</text>
+                  <text>{{ item.o_date }}</text>
+                  <text>{{ item.o_area }}</text>
+                  <text>{{
+                    item.o_garde === 0
+                      ? '铜牌'
+                      : item.o_garde === 1
+                      ? '金牌'
+                      : item.o_garde === 2
+                      ? '银牌'
+                      : ''
+                  }}</text>
+                  <text>{{ item.o_price }}</text>
                 </view>
               </Cell>
             </CellGroup>
@@ -422,14 +457,21 @@ const editClick = type => {
                 </template>
               </Cell>
               <Field
-                v-for="(item, index) in priceList"
-                v-model="workerData[item.id]"
-                :label="item.name"
+                v-model="priceList.w_historyPrice"
+                label="历史最低单价"
                 center
                 readonly
                 colon
                 clickable
-                :key="index"
+              >
+              </Field>
+              <Field
+                v-model="priceList.w_price"
+                label="目前施工单价"
+                center
+                readonly
+                colon
+                clickable
               >
               </Field>
             </CellGroup>
