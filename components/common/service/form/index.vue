@@ -7,6 +7,7 @@ const props = defineProps({
   formRules: Object
 })
 const list = ref(props.list)
+console.log('list', list.value)
 const formRules = ref(props.formRules)
 // 初始化表单
 const form = reactive({})
@@ -40,6 +41,7 @@ const pickerChange = e => {
   }
 }
 const showChoose = item => {
+  console.log('item', item)
   return item.dataConfig.dataListText && item.dataConfig.dataList[Number(form[item.code])]
     ? item.dataConfig.dataList[Number(form[item.code])][item.dataConfig.dataListText]
     : form[item.code]
@@ -67,8 +69,8 @@ const messageToggle = (type, text) => {
   popupRef.value.open()
 }
 // 返回数据
-const formSubmit =  () => {
-    return form
+const formSubmit = () => {
+  return form
 }
 
 defineExpose({

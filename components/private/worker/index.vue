@@ -1,6 +1,6 @@
 <script setup>
-import { ref } from 'vue'
-import { onLoad } from '@dcloudio/uni-app'
+import { ref, onMounted } from 'vue'
+import { onLoad, onUnload } from '@dcloudio/uni-app'
 import { worker, historyorder, prices } from '@/api/baseRequest'
 import workTypeList from '@/utils/workTypeList.js'
 import { Tab, Tabs, Field, CellGroup, Cell, showImagePreview } from 'vant'
@@ -10,46 +10,49 @@ const pageState = ref(true)
 const workerData = ref({})
 const historyList = ref([])
 const priceList = ref({})
+let id = null //当前工人id
 //生命周期中获取当前路由参数
 onLoad(option => {
+  id = JSON.parse(decodeURIComponent(option.w_id))
+})
+//请求基本信息数据
+const getWorker = () => {
   worker({
     data: {
-      w_id: JSON.parse(decodeURIComponent(option.w_id))
+      w_id: id
     }
   }).then(res => {
     if (res.statusCode != 200) {
       return
     } else {
       workerData.value = res.data.data
-      if (res.data.data.w_garde == 1) {
-        workerData.value.w_garde = '金牌师傅'
-      } else if (res.data.data.w_garde == 2) {
-        workerData.value.w_garde = '银牌师傅'
-      } else {
-        workerData.value.w_garde = '铜牌师傅'
-      }
       pageState.value = true
     }
   })
+}
+const getHistoryorder = () => {
   //请求装修历史数据
   historyorder({
-    data: { w_id: JSON.parse(decodeURIComponent(option.w_id)) }
+    data: { w_id: id }
   }).then(res => {
     if (res.statusCode == 200) {
       historyList.value = res.data.data
     } else {
     }
   })
+}
+const getPrices = () => {
   //请求参考价格数据
   prices({
-    data: { w_id: JSON.parse(decodeURIComponent(option.w_id)) }
+    data: { w_id: id }
   }).then(res => {
     if (res.statusCode == 200) {
       priceList.value = res.data.data
     } else {
     }
   })
-})
+}
+
 //返回页面
 const backPage = () => {
   uni.navigateBack()
@@ -191,6 +194,12 @@ const editClick = type => {
           text: '所在地区',
           code: 'w_habitualResidenceCity',
           data: workerData.value.w_habitualResidenceCity
+        },
+        {
+          type: 'otherData',
+          text: '工人id',
+          code: 'w_id',
+          data: id
         }
       ],
       formRules: {
@@ -242,7 +251,7 @@ const editClick = type => {
       },
       request: {
         url: '/worker/update',
-        methods: 'POST'
+        methods: 'PUT'
       }
     }
   }
@@ -251,6 +260,7 @@ const editClick = type => {
       type: 'collapse',
       text: '装修历史',
       code: 'data',
+      readOnly: true,
       dataList: historyList.value.map(item => {
         return [
           {
@@ -299,12 +309,18 @@ const editClick = type => {
             text: '施工价格',
             code: 'o_price',
             data: item.o_price
+          },
+          {
+            type: 'otherData',
+            text: '项目id',
+            code: 'o_id',
+            data: item.o_id
           }
         ]
       }),
       request: {
-        url: '/worker/update',
-        methods: 'POST'
+        url: '/order/updateHistoryOrder',
+        methods: 'PUT'
       }
     }
   }
@@ -316,19 +332,25 @@ const editClick = type => {
         {
           type: 'input',
           text: '历史最低单价',
-          code: 'w_11',
+          code: 'w_historyPrice',
           data: priceList.value.w_historyPrice
         },
         {
           type: 'input',
           text: '目前施工单价',
-          code: 'w_12',
+          code: 'w_price',
           data: priceList.value.w_price
+        },
+        {
+          type: 'otherData',
+          text: '工人id',
+          code: 'w_id',
+          data: id
         }
       ],
       request: {
-        url: '/worker/update',
-        methods: 'POST'
+        url: '/worker/updateprices',
+        methods: 'PUT'
       }
     }
   }
@@ -345,6 +367,24 @@ const editClick = type => {
     url: `/components/private/workerEdit/index?formConfig=${JSON.stringify(formConfig)}`
   })
 }
+
+onLoad(option => {
+  uni.$on('refresh', function (data) {
+    getWorker()
+    getHistoryorder()
+    getPrices()
+  })
+})
+
+onUnload(option => {
+  uni.$off('refresh')
+})
+
+onMounted(() => {
+  getWorker()
+  getHistoryorder()
+  getPrices()
+})
 </script>
 
 <template>
@@ -409,7 +449,6 @@ const editClick = type => {
             <CellGroup>
               <Field
                 v-for="(item, index) in dataList"
-                v-model="workerData[item.id]"
                 :label="item.name"
                 center
                 readonly
@@ -417,6 +456,17 @@ const editClick = type => {
                 clickable
                 :key="index"
               >
+                <template #input>
+                  <text>{{
+                    item.name === '等级'
+                      ? workerData[item.id] === 1
+                        ? '金牌师傅'
+                        : workerData[item.id] === 0
+                        ? '银牌师傅'
+                        : '铜牌师傅'
+                      : workerData[item.id]
+                  }}</text>
+                </template>
               </Field>
             </CellGroup>
           </tab>

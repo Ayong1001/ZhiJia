@@ -89,7 +89,11 @@ const submit = () => {
 }
 //返回页面
 const backPage = () => {
-  uni.navigateBack()
+  uni.navigateBack({
+    success: () => {
+      uni.$emit('refresh')
+    }
+  })
 }
 </script>
 
@@ -115,7 +119,7 @@ const backPage = () => {
           <template v-slot:title>
             <uni-list>
               <uni-list-item :title="'装修历史-' + (collapseIndex + 1)">
-                <template v-slot:footer>
+                <template v-slot:footer v-if="formConfig?.readOnly !== true">
                   <text class="delBtn" @click.stop="operate('del', collapseIndex)">删除</text>
                 </template>
               </uni-list-item>
@@ -129,7 +133,13 @@ const backPage = () => {
           ></Form>
         </uni-collapse-item>
       </uni-collapse>
-      <button size="mini" type="primary" class="addBtn" @click.stop="operate('add')">
+      <button
+        v-if="formConfig?.readOnly !== true"
+        size="mini"
+        type="primary"
+        class="addBtn"
+        @click.stop="operate('add')"
+      >
         新增{{ formConfig.text }}
       </button>
     </uni-section>
@@ -175,8 +185,8 @@ const backPage = () => {
       align-items: center;
 
       image {
-        width: 60rpx;
-        height: 60rpx;
+        width: 50rpx;
+        height: 50rpx;
         object-fit: cover;
         transform: rotate(180deg);
       }

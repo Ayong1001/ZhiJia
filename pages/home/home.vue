@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { onLoad, onUnload } from '@dcloudio/uni-app'
 import { construction } from '@/api/baseRequest'
 
 let current = ref(0)
@@ -14,9 +15,6 @@ const getConstruction = () => {
     }
   })
 }
-onMounted(() => {
-  getConstruction()
-})
 
 // const info = [
 //   {
@@ -63,6 +61,7 @@ const formConfig = () => {
     type: 'collapse',
     text: '施工动态',
     code: 'data',
+    readOnly: true,
     dataList: constructionData.value.map(item => {
       return [
         {
@@ -100,12 +99,24 @@ const formConfig = () => {
           text: '进度',
           code: 'o_schedule',
           data: item.o_schedule || null
+        },
+        {
+          type: 'otherData',
+          text: '项目id',
+          code: 'o_id',
+          data: item.o_id || null
+        },
+        {
+          type: 'otherData',
+          text: '工人id',
+          code: 'w_id',
+          data: item.w_id || null
         }
       ]
     }),
     request: {
-      url: '/worker/construction',
-      methods: 'POST'
+      url: '/order/update',
+      methods: 'PUT'
     }
   }
 }
@@ -123,6 +134,20 @@ const BoxItemBtn = item => {
     url: item.route
   })
 }
+
+onLoad(option => {
+  uni.$on('refresh', function (data) {
+    getConstruction()
+  })
+})
+
+onUnload(option => {
+  uni.$off('refresh')
+})
+
+onMounted(() => {
+  getConstruction()
+})
 </script>
 
 <template>
