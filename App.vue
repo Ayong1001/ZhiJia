@@ -28,7 +28,7 @@ export default {
 </script>
 
 <style lang="scss">
-// @import "uview-plus/index.scss";
+@import "@/uni_modules/uview-plus/index.scss";
 /*每个页面公共css */
 @import '@/uni_modules/uni-scss/index.scss';
 /* #ifndef APP-NVUE */

@@ -116,7 +116,7 @@ const dialogToggle = type => {
 }
 
 //编辑信息
-const editClick = type => {
+const editClick = (type, data) => {
   const pickerList = workTypeList.map(item => {
     return item.text
   })
@@ -255,73 +255,74 @@ const editClick = type => {
       }
     }
   }
-  const formConfig2 = () => {
+  const formConfig2 = data => {
     return {
-      type: 'collapse',
+      type: 'default',
       text: '装修历史',
-      code: 'data',
-      readOnly: true,
-      dataList: historyList.value.map(item => {
-        return [
-          {
-            type: 'input',
-            text: '施工项目',
-            code: 'o_address',
-            data: item.o_address
-          },
-          {
-            type: 'input',
-            text: '施工年份',
-            code: 'o_date',
-            data: item.o_date
-          },
-          {
-            type: 'input',
-            text: '施工所在地区',
-            code: 'o_area',
-            data: item.o_area
-          },
-          {
-            type: 'picker',
-            text: '师傅等级',
-            code: 'o_garde',
-            data: item.o_garde || 0,
-            dataConfig: {
-              dataList: [
-                {
-                  value: 0,
-                  text: '铜牌师傅'
-                },
-                {
-                  value: 1,
-                  text: '金牌师傅'
-                },
-                {
-                  value: 2,
-                  text: '银牌师傅'
-                }
-              ],
-              dataListText: 'text'
-            }
-          },
-          {
-            type: 'input',
-            text: '施工价格',
-            code: 'o_price',
-            data: item.o_price
-          },
-          {
-            type: 'otherData',
-            text: '项目id',
-            code: 'o_id',
-            data: item.o_id
+      dataList: [
+        {
+          type: 'input',
+          text: '施工项目',
+          code: 'o_address',
+          data: data.o_address || null
+        },
+        {
+          type: 'input',
+          text: '施工年份',
+          code: 'o_date',
+          data: data.o_date || null
+        },
+        {
+          type: 'input',
+          text: '施工所在地区',
+          code: 'o_area',
+          data: data.o_area || null
+        },
+        {
+          type: 'picker',
+          text: '师傅等级',
+          code: 'o_garde',
+          data: data.o_garde || null,
+          dataConfig: {
+            dataList: [
+              {
+                value: 0,
+                text: '铜牌师傅'
+              },
+              {
+                value: 1,
+                text: '金牌师傅'
+              },
+              {
+                value: 2,
+                text: '银牌师傅'
+              }
+            ],
+            dataListText: 'text'
           }
-        ]
-      }),
-      request: {
-        url: '/order/updateHistoryOrder',
-        methods: 'PUT'
-      }
+        },
+        {
+          type: 'input',
+          text: '施工价格',
+          code: 'o_price',
+          data: data.o_price || null
+        },
+        {
+          type: 'otherData',
+          text: '项目id',
+          code: 'o_id',
+          data: data.o_id || null
+        }
+      ],
+      request: data
+        ? {
+            url: '/order/updateHistoryOrder',
+            methods: 'PUT'
+          }
+        : {
+            url: '/order/add',
+            methods: 'POST'
+          }
     }
   }
   const formConfig3 = () => {
@@ -361,13 +362,22 @@ const editClick = type => {
     formConfig = formConfig2()
   } else if (type === 3) {
     formConfig = formConfig3()
+  } else if (type === 4) {
+    formConfig = formConfig2(data)
   }
   //带数据跳转信息编辑页
   uni.navigateTo({
     url: `/components/private/workerEdit/index?formConfig=${JSON.stringify(formConfig)}`
   })
 }
-
+// 编辑、删除按钮
+const btnClick = data => {
+  if (data.index === 0) {
+    editClick(4, data.name)
+  } else if (data.index === 1) {
+    console.log(123)
+  }
+}
 onLoad(option => {
   uni.$on('refresh', function (data) {
     getWorker()
@@ -474,29 +484,52 @@ onMounted(() => {
             <CellGroup>
               <Cell class="title1" title="装修历史" center>
                 <template v-slot:value>
-                  <text class="editBtn2" @click.stop="editClick(2)">编辑</text>
+                  <text class="editBtn2" @click.stop="editClick(2)">新增</text>
                 </template>
               </Cell>
-              <Cell v-for="(item, index) in historyList.slice(0, 4)" :key="index">
-                <view class="address">
-                  <image :src="`/static/c${index + 1}.png`" mode="scaleToFill" />
-                  <text>{{ item.o_address }}</text>
-                </view>
-                <view class="message">
-                  <text>{{ item.o_date }}</text>
-                  <text>{{ item.o_area }}</text>
-                  <text>{{
-                    item.o_garde === 0
-                      ? '铜牌'
-                      : item.o_garde === 1
-                      ? '金牌'
-                      : item.o_garde === 2
-                      ? '银牌'
-                      : ''
-                  }}</text>
-                  <text>{{ item.o_price }}</text>
-                </view>
-              </Cell>
+              <u-swipe-action v-for="(item, index) in historyList.slice(0, 4)" :key="index">
+                <u-swipe-action-item
+                  :name="item"
+                  :options="[
+                    {
+                      text: '编辑',
+                      style: {
+                        backgroundColor: '#3c9cff'
+                      }
+                    },
+                    {
+                      text: '删除',
+                      style: {
+                        backgroundColor: '#f56c6c'
+                      }
+                    }
+                  ]"
+                  @click="btnClick"
+                >
+                  <view class="swipe-action u-border-top">
+                    <Cell>
+                      <view class="address">
+                        <image :src="`/static/c${index + 1}.png`" mode="scaleToFill" />
+                        <text>{{ item.o_address }}</text>
+                      </view>
+                      <view class="message">
+                        <text>{{ item.o_date }}</text>
+                        <text>{{ item.o_area }}</text>
+                        <text>{{
+                          item.o_garde === 0
+                            ? '铜牌'
+                            : item.o_garde === 1
+                            ? '金牌'
+                            : item.o_garde === 2
+                            ? '银牌'
+                            : ''
+                        }}</text>
+                        <text>{{ item.o_price }}</text>
+                      </view>
+                    </Cell>
+                  </view>
+                </u-swipe-action-item>
+              </u-swipe-action>
             </CellGroup>
           </tab>
           <tab title="参考价格" class="tab tab1">
@@ -587,7 +620,7 @@ onMounted(() => {
     </view>
   </view>
 </template>
-<style lang="less" scoped>
+<style lang="scss" scoped>
 .userContainer {
   width: 100%;
   height: 100%;
@@ -733,15 +766,34 @@ onMounted(() => {
               max-height: 300rpx;
             }
           }
+          .u-page {
+            padding: 0;
+          }
+
+          .u-demo-block__title {
+            padding: 10px 0 2px 15px;
+          }
+
+          .swipe-action {
+            &__content {
+              padding: 25rpx 0;
+
+              &__text {
+                font-size: 15px;
+                color: $u-main-color;
+                padding-left: 30rpx;
+              }
+            }
+          }
         }
 
         .tab1 {
-          /deep/ .van-field__label {
+          ::v-deep .van-field__label {
             font-size: 32rpx;
             color: #999a9c;
           }
 
-          /deep/ .van-field__control {
+          ::v-deep .van-field__control {
             font-size: 30rpx;
           }
         }
@@ -788,7 +840,7 @@ onMounted(() => {
     }
   }
 
-  /deep/ .van-field__label {
+  ::v-deep .van-field__label {
     width: auto;
     min-width: var(--van-field-label-width);
     max-width: 50%;
