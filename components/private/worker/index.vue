@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { onLoad, onUnload } from '@dcloudio/uni-app'
 import { worker, historyorder, prices } from '@/api/baseRequest'
 import workTypeList from '@/utils/workTypeList.js'
+import http from '@/utils/request.js'
 import { Tab, Tabs, Field, CellGroup, Cell, showImagePreview } from 'vant'
 import 'vant/lib/index.css'
 
@@ -10,16 +11,25 @@ const pageState = ref(true)
 const workerData = ref({})
 const historyList = ref([])
 const priceList = ref({})
-let id = null //当前工人id
+let nowDelData = {}
+const alertDialog = ref(null)
+const alertConfig = ref({
+  msgType: '',
+  cancelText: '',
+  confirmText: '',
+  title: '',
+  content: ''
+})
+let w_id = null //当前工人id
 //生命周期中获取当前路由参数
 onLoad(option => {
-  id = JSON.parse(decodeURIComponent(option.w_id))
+  w_id = JSON.parse(decodeURIComponent(option.w_id))
 })
 //请求基本信息数据
 const getWorker = () => {
   worker({
     data: {
-      w_id: id
+      w_id: w_id
     }
   }).then(res => {
     if (res.statusCode != 200) {
@@ -33,7 +43,7 @@ const getWorker = () => {
 const getHistoryorder = () => {
   //请求装修历史数据
   historyorder({
-    data: { w_id: id }
+    data: { w_id: w_id }
   }).then(res => {
     if (res.statusCode == 200) {
       historyList.value = res.data.data
@@ -44,7 +54,7 @@ const getHistoryorder = () => {
 const getPrices = () => {
   //请求参考价格数据
   prices({
-    data: { w_id: id }
+    data: { w_id: w_id }
   }).then(res => {
     if (res.statusCode == 200) {
       priceList.value = res.data.data
@@ -108,11 +118,32 @@ const imgList = [
   '/static/image/home/1616860018685.webp',
   '/static/image/home/2021-05-14-00-00-53-677.jpg'
 ]
-
+const popupRef = ref(null)
+const popupList = {
+  msgType: '',
+  messageText: ''
+}
+//消息提示
+const messageToggle = (type, text) => {
+  popupList.msgType = type
+  popupList.messageText = text
+  popupRef.value.open()
+}
 //联系师傅
 const inputDialog = ref(null)
 const dialogToggle = type => {
-  inputDialog.value.open()
+  if (type === '联系师傅') {
+    inputDialog.value.open()
+  } else if (type === '删除装修历史') {
+    alertConfig.value = {
+      msgType: 'error',
+      title: '警告',
+      content: '是否确定删除此记录？',
+      cancelText: '取消',
+      confirmText: '确定'
+    }
+    alertDialog.value.open()
+  }
 }
 
 //编辑信息
@@ -199,7 +230,7 @@ const editClick = (type, data) => {
           type: 'otherData',
           text: '工人id',
           code: 'w_id',
-          data: id
+          data: w_id
         }
       ],
       formRules: {
@@ -264,25 +295,25 @@ const editClick = (type, data) => {
           type: 'input',
           text: '施工项目',
           code: 'o_address',
-          data: data.o_address || null
+          data: data?.o_address || null
         },
         {
-          type: 'input',
+          type: 'datePicker',
           text: '施工年份',
           code: 'o_date',
-          data: data.o_date || null
+          data: data?.o_date || null
         },
         {
           type: 'input',
           text: '施工所在地区',
           code: 'o_area',
-          data: data.o_area || null
+          data: data?.o_area || null
         },
         {
           type: 'picker',
           text: '师傅等级',
           code: 'o_garde',
-          data: data.o_garde || null,
+          data: data?.o_garde || null,
           dataConfig: {
             dataList: [
               {
@@ -305,13 +336,19 @@ const editClick = (type, data) => {
           type: 'input',
           text: '施工价格',
           code: 'o_price',
-          data: data.o_price || null
+          data: data?.o_price || null
         },
         {
           type: 'otherData',
           text: '项目id',
           code: 'o_id',
-          data: data.o_id || null
+          data: data?.o_id || null
+        },
+        {
+          type: 'otherData',
+          text: '工人id',
+          code: 'w_id',
+          data: w_id
         }
       ],
       request: data
@@ -320,7 +357,7 @@ const editClick = (type, data) => {
             methods: 'PUT'
           }
         : {
-            url: '/order/add',
+            url: `/order/add`,
             methods: 'POST'
           }
     }
@@ -346,7 +383,7 @@ const editClick = (type, data) => {
           type: 'otherData',
           text: '工人id',
           code: 'w_id',
-          data: id
+          data: w_id
         }
       ],
       request: {
@@ -375,15 +412,34 @@ const btnClick = data => {
   if (data.index === 0) {
     editClick(4, data.name)
   } else if (data.index === 1) {
-    console.log(123)
+    nowDelData = data
+    dialogToggle('删除装修历史')
   }
 }
-onLoad(option => {
-  uni.$on('refresh', function (data) {
-    getWorker()
-    getHistoryorder()
-    getPrices()
+//执行删除
+const delConfirm = value => {
+  http({
+    url: `/order/delete?o_id=${nowDelData.name.o_id}`,
+    method: 'DELETE'
+  }).then(res => {
+    if (res.statusCode == 200) {
+      messageToggle('success', '删除成功!')
+      setTimeout(() => {
+        refreshData()
+      }, 500)
+    } else {
+      messageToggle('error', '删除失败!')
+    }
   })
+}
+//页面数据刷新
+const refreshData = () => {
+  getWorker()
+  getHistoryorder()
+  getPrices()
+}
+onLoad(option => {
+  uni.$on('refresh', refreshData)
 })
 
 onUnload(option => {
@@ -484,7 +540,7 @@ onMounted(() => {
             <CellGroup>
               <Cell class="title1" title="装修历史" center>
                 <template v-slot:value>
-                  <text class="editBtn2" @click.stop="editClick(2)">新增</text>
+                  <text class="editBtn2" @click.stop="editClick(4)">新增</text>
                 </template>
               </Cell>
               <u-swipe-action v-for="(item, index) in historyList.slice(0, 4)" :key="index">
@@ -505,6 +561,7 @@ onMounted(() => {
                     }
                   ]"
                   @click="btnClick"
+                  :key="item"
                 >
                   <view class="swipe-action u-border-top">
                     <Cell>
@@ -590,7 +647,7 @@ onMounted(() => {
               </Field>
             </CellGroup>
           </tab> -->
-          <button class="btn" @click="dialogToggle('success')">联系师傅</button>
+          <button class="btn" @click="dialogToggle('联系师傅')">联系师傅</button>
           <uni-popup ref="inputDialog" type="dialog">
             <uni-popup-dialog
               ref="inputClose"
@@ -613,6 +670,23 @@ onMounted(() => {
                 </Field>
               </CellGroup>
             </uni-popup-dialog>
+          </uni-popup>
+          <uni-popup ref="alertDialog" type="dialog">
+            <uni-popup-dialog
+              :type="alertConfig.msgType"
+              :cancelText="alertConfig.cancelText"
+              :confirmText="alertConfig.confirmText"
+              :title="alertConfig.title"
+              :content="alertConfig.content"
+              @confirm="delConfirm"
+            ></uni-popup-dialog>
+          </uni-popup>
+          <uni-popup ref="popupRef" type="message">
+            <uni-popup-message
+              :type="popupList.msgType"
+              :message="popupList.messageText"
+              :duration="2000"
+            ></uni-popup-message>
           </uni-popup>
           <view style="height: 1rpx"></view>
         </tabs>

@@ -173,7 +173,10 @@ onMounted(() => {
                   v-model="form[item.code]"
                   @change="dateChange"
                   @click="formItemClick(item)"
-                />
+                  ><template #default>
+                    <text>{{ form[item.code] }}</text>
+                  </template></uni-datetime-picker
+                >
               </uni-forms-item>
               <uni-forms-item v-if="item.type === 'picker'" :label="item.text" :name="item.code">
                 <picker
